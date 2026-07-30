@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life OS | Personal Productivity Operating System</title>
+  <meta name="description" content="Personal Productivity Operating System for Computer Science & Engineering at The Ohio State University.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            bg: {
+              DEFAULT: 'var(--bg)',
+              sidebar: 'var(--bg-sidebar)',
+              card: 'var(--bg-card)',
+              glass: 'var(--bg-glass)'
+            },
+            border: 'var(--border)',
+            text: {
+              DEFAULT: 'var(--text)',
+              muted: 'var(--text-muted)',
+              subtle: 'var(--text-subtle)'
+            },
+            accent: {
+              DEFAULT: 'var(--accent)',
+              hover: 'var(--accent-hover)',
+              light: 'var(--accent-light)',
+              glow: 'var(--accent-glow)'
+            },
+            danger: {
+              DEFAULT: 'var(--danger)',
+              bg: 'var(--danger-bg)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Main Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-bg text-text font-sans antialiased selection:bg-accent-light selection:text-white transition-colors duration-200">
+
+  <!-- App Wrapper -->
+  <div id="app" class="flex h-screen w-screen overflow-hidden">
+    <!-- Sidebar Container -->
+    <aside id="sidebar-container" class="h-full flex-shrink-0 border-r border-border bg-sidebar z-30 transition-all duration-300"></aside>
+
+    <!-- Main Content Area -->
+    <div class="flex flex-col flex-1 h-full min-w-0 bg-bg transition-colors duration-200 relative overflow-hidden">
+      
+      <!-- Cute Aesthetic Wallpaper Backdrop (Kirby, Spider-Man, Gamepad, Soccer, Music) -->
+      <div id="wallpaper-backdrop" class="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-25 select-none">
+        
+        <!-- Kirby Sticker Cutout -->
+        <div class="absolute bottom-10 right-10 w-32 h-32 transform rotate-12 transition-transform hover:rotate-0">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <circle cx="50" cy="50" r="44" fill="#FFFFFF" />
+            <!-- Kirby Body -->
+            <circle cx="50" cy="50" r="40" fill="#FFB6C1" />
+            <!-- Cheeks -->
+            <ellipse cx="32" cy="56" rx="6" ry="4" fill="#FF69B4" opacity="0.8" />
+            <ellipse cx="68" cy="56" rx="6" ry="4" fill="#FF69B4" opacity="0.8" />
+            <!-- Eyes -->
+            <ellipse cx="40" cy="45" rx="3.5" ry="8" fill="#003366" />
+            <ellipse cx="60" cy="45" rx="3.5" ry="8" fill="#003366" />
+            <circle cx="40" cy="42" r="1.5" fill="#FFFFFF" />
+            <circle cx="60" cy="42" r="1.5" fill="#FFFFFF" />
+            <!-- Mouth -->
+            <path d="M 44 58 Q 50 64 56 58" stroke="#990033" stroke-width="2.5" stroke-linecap="round" fill="none" />
+            <!-- Feet -->
+            <ellipse cx="28" cy="85" rx="12" ry="7" fill="#CC0033" />
+            <ellipse cx="72" cy="85" rx="12" ry="7" fill="#CC0033" />
+          </svg>
+        </div>
+
+        <!-- Teen Titans Go! "T" Shield Emblem Cutout -->
+        <div class="absolute top-12 right-16 w-32 h-32 transform -rotate-12">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <polygon points="50,6 94,26 84,88 50,98 16,88 6,26" fill="#FFFFFF" />
+            <!-- Shield Base -->
+            <polygon points="50,10 90,28 80,84 50,94 20,84 10,28" fill="#06B6D4" />
+            <!-- Inner Shield Dark Frame -->
+            <polygon points="50,15 84,31 75,79 50,88 25,79 16,31" fill="#0F172A" />
+            <!-- Iconic Yellow "T" Emblem -->
+            <path d="M 30 30 H 70 V 42 H 56 V 78 H 44 V 42 H 30 Z" fill="#FACC15" />
+          </svg>
+        </div>
+
+        <!-- Cozy Autumn Pumpkin Cutout -->
+        <div class="absolute top-1/4 right-1/4 w-32 h-32 transform rotate-6">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <ellipse cx="50" cy="56" rx="44" ry="36" fill="#FFFFFF" />
+            <rect x="44" y="10" width="12" height="24" rx="4" fill="#FFFFFF" transform="rotate(-6 50 20)" />
+            <!-- Pumpkin Stem -->
+            <path d="M 47 16 C 45 10, 52 8, 56 12 C 54 18, 50 24, 48 30 Z" fill="#15803D" />
+            <!-- Curly Tendril -->
+            <path d="M 52 18 Q 62 14 60 24" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" fill="none" />
+            <!-- Pumpkin Ribbed Segments -->
+            <ellipse cx="50" cy="58" rx="40" ry="32" fill="#D97706" />
+            <ellipse cx="50" cy="58" rx="30" ry="32" fill="#EA580C" />
+            <ellipse cx="50" cy="58" rx="18" ry="32" fill="#F97316" />
+          </svg>
+        </div>
+
+        <!-- Spider-Man Mask Cutout -->
+        <div class="absolute bottom-20 left-12 w-32 h-32 transform -rotate-12">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <ellipse cx="50" cy="50" rx="42" ry="46" fill="#FFFFFF" />
+            <!-- Mask Base -->
+            <ellipse cx="50" cy="50" rx="38" ry="42" fill="#E63946" />
+            <!-- Web Lines -->
+            <path d="M 50 8 V 92 M 12 50 H 88 M 22 22 L 78 78 M 22 78 L 78 22" stroke="#1D3557" stroke-width="1.5" opacity="0.4" fill="none" />
+            <!-- Eyes Outline -->
+            <path d="M 20 42 Q 35 30 45 46 Q 32 58 20 42 Z" fill="#FFFFFF" stroke="#1D3557" stroke-width="3" />
+            <path d="M 80 42 Q 65 30 55 46 Q 68 58 80 42 Z" fill="#FFFFFF" stroke="#1D3557" stroke-width="3" />
+          </svg>
+        </div>
+
+        <!-- Pastel Game Controller Cutout -->
+        <div class="absolute top-1/3 left-1/4 w-36 h-28 transform -rotate-6">
+          <svg viewBox="0 0 120 80" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <rect x="5" y="10" width="110" height="60" rx="30" fill="#FFFFFF" />
+            <!-- Body -->
+            <rect x="8" y="13" width="104" height="54" rx="27" fill="#D8B4FE" />
+            <!-- D-Pad -->
+            <path d="M 28 32 H 36 V 24 H 42 V 32 H 50 V 38 H 42 V 46 H 36 V 38 H 28 Z" fill="#6B21A8" />
+            <!-- Action Buttons -->
+            <circle cx="85" cy="28" r="4" fill="#F43F5E" />
+            <circle cx="95" cy="38" r="4" fill="#3B82F6" />
+            <circle cx="75" cy="38" r="4" fill="#10B981" />
+            <circle cx="85" cy="48" r="4" fill="#F59E0B" />
+          </svg>
+        </div>
+
+        <!-- Soccer Ball Cutout -->
+        <div class="absolute bottom-1/4 right-20 w-28 h-28 transform rotate-45">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <circle cx="50" cy="50" r="44" fill="#FFFFFF" />
+            <!-- Ball -->
+            <circle cx="50" cy="50" r="40" fill="#F8FAFC" stroke="#334155" stroke-width="2" />
+            <!-- Center Pentagon -->
+            <polygon points="50,38 62,46 57,60 43,60 38,46" fill="#1E293B" />
+            <!-- Connecting Lines & Patch Edges -->
+            <line x1="50" y1="38" x2="50" y2="20" stroke="#334155" stroke-width="2" />
+            <line x1="62" y1="46" x2="78" y2="38" stroke="#334155" stroke-width="2" />
+            <line x1="57" y1="60" x2="70" y2="74" stroke="#334155" stroke-width="2" />
+            <line x1="43" y1="60" x2="30" y2="74" stroke="#334155" stroke-width="2" />
+            <line x1="38" y1="46" x2="22" y2="38" stroke="#334155" stroke-width="2" />
+          </svg>
+        </div>
+
+        <!-- Vinyl Record & Music Notes Cutout -->
+        <div class="absolute top-20 right-1/3 w-32 h-32 transform -rotate-12">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <circle cx="50" cy="50" r="44" fill="#FFFFFF" />
+            <!-- Record Body -->
+            <circle cx="50" cy="50" r="40" fill="#1E1B18" />
+            <!-- Grooves -->
+            <circle cx="50" cy="50" r="32" stroke="#332F2B" stroke-width="1.5" fill="none" />
+            <circle cx="50" cy="50" r="24" stroke="#332F2B" stroke-width="1.5" fill="none" />
+            <!-- Pink Center Label -->
+            <circle cx="50" cy="50" r="14" fill="#F43F5E" />
+            <circle cx="50" cy="50" r="3" fill="#FFFFFF" />
+          </svg>
+        </div>
+
+        <!-- The Last of Us Firefly/Moth Symbol Cutout -->
+        <div class="absolute bottom-1/3 left-16 w-32 h-32 transform rotate-6">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <circle cx="50" cy="50" r="44" fill="#FFFFFF" />
+            <!-- Emblem Base -->
+            <circle cx="50" cy="50" r="40" fill="#292524" />
+            <!-- Firefly / Moth Wings -->
+            <path d="M 50 22 C 30 35, 18 55, 30 75 C 40 68, 48 56, 50 42 C 52 56, 60 68, 70 75 C 82 55, 70 35, 50 22 Z" fill="#F59E0B" />
+            <!-- Firefly Antennae & Body -->
+            <line x1="50" y1="20" x2="42" y2="10" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" />
+            <line x1="50" y1="20" x2="58" y2="10" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" />
+            <circle cx="50" cy="48" r="3" fill="#FFFFFF" />
+          </svg>
+        </div>
+
+        <!-- Chocolate Chip Cookie / Brownie Cutout -->
+        <div class="absolute top-1/2 left-10 w-28 h-28 transform -rotate-12">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <path d="M 50 8 C 72 8, 92 24, 92 48 C 92 72, 74 92, 50 92 C 24 92, 8 72, 8 48 C 8 26, 26 8, 50 8 Z" fill="#FFFFFF" />
+            <!-- Cookie Base -->
+            <path d="M 50 12 C 68 12, 88 28, 88 50 C 88 70, 70 88, 50 88 C 28 88, 12 70, 12 50 C 12 30, 30 12, 50 12 Z" fill="#D97706" />
+            <!-- Chocolate Chips -->
+            <circle cx="35" cy="35" r="5" fill="#451A03" />
+            <circle cx="65" cy="32" r="6" fill="#451A03" />
+            <circle cx="50" cy="52" r="5.5" fill="#451A03" />
+            <circle cx="32" cy="65" r="5" fill="#451A03" />
+            <circle cx="68" cy="62" r="5" fill="#451A03" />
+            <circle cx="52" cy="72" r="4" fill="#451A03" />
+          </svg>
+        </div>
+
+        <!-- NewJeans Tokki Bunny Cutout -->
+        <div class="absolute bottom-16 right-1/4 w-32 h-36 transform rotate-12">
+          <svg viewBox="0 0 100 120" class="w-full h-full drop-shadow-md">
+            <!-- White Sticker Outline -->
+            <path d="M 30 5 C 20 5, 22 45, 34 52 C 20 60, 20 95, 50 95 C 80 95, 80 60, 66 52 C 78 45, 80 5, 70 5 C 60 5, 52 35, 50 42 C 48 35, 40 5, 30 5 Z" fill="#FFFFFF" />
+            <!-- Bunny Body & Long Ears -->
+            <path d="M 32 8 C 24 8, 26 44, 36 50 C 24 58, 24 92, 50 92 C 76 92, 76 58, 64 50 C 74 44, 76 8, 68 8 C 60 8, 54 34, 50 40 C 46 34, 40 8, 32 8 Z" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2" />
+            <!-- Pink Ear Centers -->
+            <path d="M 33 14 C 28 14, 30 36, 36 42" stroke="#F472B6" stroke-width="3" stroke-linecap="round" fill="none" />
+            <path d="M 67 14 C 72 14, 70 36, 64 42" stroke="#F472B6" stroke-width="3" stroke-linecap="round" fill="none" />
+            <!-- Cute Blushing Cheeks -->
+            <ellipse cx="36" cy="68" rx="5" ry="3" fill="#F472B6" opacity="0.6" />
+            <ellipse cx="64" cy="68" rx="5" ry="3" fill="#F472B6" opacity="0.6" />
+            <!-- Eyes & Y2K Sparkle -->
+            <circle cx="42" cy="60" r="3" fill="#1E293B" />
+            <circle cx="58" cy="60" r="3" fill="#1E293B" />
+            <!-- Cute Nose / Mouth -->
+            <path d="M 48 64 L 52 64 L 50 66 Z" fill="#F472B6" />
+          </svg>
+        </div>
+
+        <!-- Decorative Sparkles & Stars -->
+        <div class="absolute top-1/2 right-12 text-amber-400 text-3xl transform rotate-12">✦</div>
+        <div class="absolute bottom-12 left-1/3 text-pink-400 text-2xl transform -rotate-12">✧</div>
+        <div class="absolute top-16 left-16 text-indigo-400 text-2xl">✦</div>
+
+      </div>
+
+      <!-- Top Header -->
+      <header id="header-container" class="h-16 border-b border-border bg-bg-glass backdrop-blur-md sticky top-0 z-20 flex items-center justify-between px-6 flex-shrink-0"></header>
+
+      <!-- Main Scrollable View -->
+      <main id="main-view" class="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 scroll-smooth relative z-10"></main>
+    </div>
+  </div>
+
+  <!-- Global Modals Container -->
+  <div id="modal-container"></div>
+
+  <!-- App Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

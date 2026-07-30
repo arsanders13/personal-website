@@ -1,0 +1,281 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Warm Pinterest Scrapbook Light Theme (Default) */
+  --bg: #FAF8F5; /* Soft Warm Off-White / Cream Canvas */
+  --bg-sidebar: #F5F1EA; /* Soft Warm Cream Sidebar */
+  --bg-card: #FFFFFF; /* Pure Clean Warm Paper Cards */
+  --bg-card-hover: #FCFBF9;
+  --accent: #D97706; /* Sunset Amber / Warm Gold */
+  --accent-glow: rgba(217, 119, 6, 0.15);
+  --accent-light: #F59E0B;
+  --border: #E8E3DA; /* Warm Beige Divider */
+  --border-hover: #D6CEC0;
+  --text: #2B2825; /* Charcoal Warm Ink */
+  --text-muted: #5C554E;
+  --text-subtle: #8C837A;
+  --danger: #E11D48;
+  --success: #059669;
+  --warning: #D97706;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  --font-handwriting: 'Caveat', cursive, sans-serif;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Classic Dark Theme Option */
+.dark {
+  --bg: #0B0E14;
+  --bg-sidebar: #0E121A;
+  --bg-card: rgba(18, 24, 38, 0.85);
+  --bg-card-hover: rgba(28, 36, 56, 0.95);
+  --accent: #6366F1;
+  --accent-glow: rgba(99, 102, 241, 0.25);
+  --accent-light: #818CF8;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(99, 102, 241, 0.4);
+  --text: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  --danger: #EF4444;
+  --success: #10B981;
+  --warning: #F59E0B;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Pinterest Scrapbook Glass Card Style */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 20px -2px rgba(45, 40, 35, 0.05), 0 1px 3px rgba(45, 40, 35, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.glass-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  box-shadow: 0 10px 25px -4px rgba(45, 40, 35, 0.08);
+}
+
+/* Polaroid Card Tilt & Shadow */
+.polaroid-card {
+  background: #FFFFFF;
+  border: 1px solid #EAE5DC;
+  border-radius: 1.25rem;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(45, 40, 35, 0.06);
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.polaroid-card:hover {
+  transform: translateY(-3px) rotate(-1deg);
+  box-shadow: 0 12px 28px rgba(45, 40, 35, 0.12);
+  border-color: #DCD5C8;
+}
+
+/* Washi Tape Accent Strips */
+.washi-tape {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  width: 70px;
+  height: 20px;
+  background: rgba(245, 230, 210, 0.7);
+  border: 1px dashed rgba(200, 180, 150, 0.5);
+  transform: rotate(-3deg);
+  z-index: 10;
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+.washi-tape-right {
+  left: auto;
+  right: 20px;
+  transform: rotate(3deg);
+  background: rgba(220, 235, 245, 0.7);
+}
+
+/* Pop Culture Sticker Badges */
+.sticker-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease;
+}
+.sticker-badge:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+.sticker-kirby { background: #FFE4E6; color: #E11D48; border-color: #FECDD3; }
+.sticker-spiderman { background: #FEE2E2; color: #DC2626; border-color: #FCA5A5; }
+.sticker-tlou { background: #ECFDF5; color: #047857; border-color: #A7F3D0; }
+.sticker-osu { background: #FEF2F2; color: #B91C1C; border-color: #FCA5A5; }
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 170, 160, 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 140, 130, 0.5);
+}
+
+/* Input Fields */
+.input-field {
+  width: 100%;
+  background: #F8F5F0;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  color: var(--text);
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+  outline: none;
+}
+.dark .input-field {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: #FFFFFF;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+}
+.btn-primary:hover {
+  opacity: 0.94;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #F3EEE6;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.dark .btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+}
+.btn-secondary:hover {
+  background: #EAE4DA;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+.btn-ghost:hover {
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.btn-icon {
+  padding: 0.5rem;
+  border-radius: 0.625rem;
+}
+
+/* Progress Bars */
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: #EFEAE2;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D97706 0%, #E11D48 100%);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-urgent { background: #FFE4E6; color: #E11D48; border: 1px solid #FECDD3; }
+.badge-high { background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; }
+.badge-medium { background: #E0E7FF; color: #4338CA; border: 1px solid #C7D2FE; }
+.badge-low { background: #D1FAE5; color: #047857; border: 1px solid #A7F3D0; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 35, 30, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
