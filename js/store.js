@@ -219,6 +219,35 @@ class Store {
     this.saveData();
   }
 
+  unsyncAllExternalSchedules() {
+    this.data.tasks = this.data.tasks.filter(t => !t.sourceTag || (t.sourceTag !== 'Power Planner' && t.sourceTag !== 'Google Calendar' && t.sourceTag !== 'Canvas'));
+    this.data.integrations = {
+      powerPlanner: false,
+      googleCalendar: false,
+      canvas: false,
+      lastSynced: null
+    };
+    this.saveData();
+  }
+
+  toggleIntegration(source) {
+    if (!this.data.integrations) {
+      this.data.integrations = { powerPlanner: false, googleCalendar: false, canvas: false, lastSynced: null };
+    }
+    this.data.integrations[source] = !this.data.integrations[source];
+    
+    const tagMap = {
+      powerPlanner: 'Power Planner',
+      googleCalendar: 'Google Calendar',
+      canvas: 'Canvas'
+    };
+    const targetTag = tagMap[source];
+    if (!this.data.integrations[source] && targetTag) {
+      this.data.tasks = this.data.tasks.filter(t => t.sourceTag !== targetTag);
+    }
+    this.saveData();
+  }
+
   updateTask(id, updates) {
     const index = this.data.tasks.findIndex(t => t.id === id);
     if (index !== -1) {

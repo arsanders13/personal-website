@@ -76,33 +76,51 @@ export function renderTasks(container) {
         ` : ''}
 
         <!-- Schedule Integration & Sync Hub Banner -->
-        <div class="glass-card p-5 bg-gradient-to-r from-accent/15 via-bg-card to-indigo-950/20 border-accent/30">
+        <div class="glass-card p-5 bg-gradient-to-r from-amber-500/10 via-bg-card to-indigo-950/20 border-amber-500/30 space-y-3">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-accent/20 text-accent flex items-center justify-center font-bold">
+              <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold">
                 <i data-lucide="calendar" class="w-5 h-5"></i>
               </div>
               <div>
                 <h3 class="font-bold text-base text-text flex items-center gap-2">
-                  <span>OSU Schedule & Power Planner Hub</span>
-                  <span class="badge bg-emerald-500/20 text-emerald-300 text-[10px]">Live Sync Ready</span>
+                  <span>OSU Schedule & Calendar Controls</span>
                 </h3>
-                <p class="text-xs text-text-subtle">Sync OSU courses, Power Planner assignments, & Google Calendar into unified time-blocks.</p>
+                <p class="text-xs text-text-subtle">Toggle individual calendar feeds, sync external schedules, or unsync completely.</p>
               </div>
             </div>
 
-            <div class="flex items-center gap-2 self-start md:self-auto">
-              <div class="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-border text-[11px] text-text-subtle font-mono">
-                <span class="${integrations.powerPlanner ? 'text-emerald-400' : 'text-text-subtle'}">● Power Planner</span>
-                <span class="${integrations.googleCalendar ? 'text-cyan-400' : 'text-text-subtle'}">● Google Cal</span>
-                <span class="${integrations.canvas ? 'text-amber-400' : 'text-text-subtle'}">● Canvas LMS</span>
-              </div>
-
-              <button id="sync-schedule-btn" class="btn btn-primary text-xs py-1.5 px-3" title="Sync sample OSU courses & assignment schedules">
+            <div class="flex items-center gap-2 flex-wrap">
+              <button id="sync-schedule-btn" class="btn btn-primary text-xs py-1.5 px-3">
                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                <span>${integrations.lastSynced ? `Synced (${integrations.lastSynced})` : 'Sync Schedules Now'}</span>
+                <span>${integrations.lastSynced ? `Synced (${integrations.lastSynced})` : 'Sync Schedules'}</span>
+              </button>
+
+              <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all synced external calendar items">
+                <i data-lucide="power" class="w-3.5 h-3.5"></i>
+                <span>Unsync All</span>
               </button>
             </div>
+          </div>
+
+          <!-- Individual Feed Toggles -->
+          <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50 text-xs">
+            <span class="text-text-subtle font-semibold">Calendar Feeds:</span>
+            
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="toggle-pp" ${integrations.powerPlanner ? 'checked' : ''} class="rounded text-accent" />
+              <span class="text-text font-medium">Power Planner</span>
+            </label>
+
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="toggle-gcal" ${integrations.googleCalendar ? 'checked' : ''} class="rounded text-accent" />
+              <span class="text-text font-medium">Google Calendar</span>
+            </label>
+
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="toggle-canvas" ${integrations.canvas ? 'checked' : ''} class="rounded text-accent" />
+              <span class="text-text font-medium">Canvas LMS</span>
+            </label>
           </div>
         </div>
 
@@ -550,9 +568,26 @@ export function renderTasks(container) {
       });
     });
 
-    // External Schedule Sync Button
+    // External Schedule Sync & Unsync Controls
     container.querySelector('#sync-schedule-btn')?.addEventListener('click', () => {
       store.syncExternalSchedules();
+      renderView();
+    });
+    container.querySelector('#unsync-schedule-btn')?.addEventListener('click', () => {
+      store.unsyncAllExternalSchedules();
+      renderView();
+    });
+
+    container.querySelector('#toggle-pp')?.addEventListener('change', () => {
+      store.toggleIntegration('powerPlanner');
+      renderView();
+    });
+    container.querySelector('#toggle-gcal')?.addEventListener('change', () => {
+      store.toggleIntegration('googleCalendar');
+      renderView();
+    });
+    container.querySelector('#toggle-canvas')?.addEventListener('change', () => {
+      store.toggleIntegration('canvas');
       renderView();
     });
 
