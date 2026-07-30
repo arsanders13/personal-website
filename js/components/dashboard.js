@@ -117,9 +117,22 @@ export function renderDashboard(container) {
                   <span class="text-text font-medium truncate" title="${item.content}">${item.content}</span>
                 </div>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
-                  <button data-dash-convert-qc="${item.id}" class="btn btn-secondary text-[10px] py-1 px-2 text-accent" title="Convert to Task">
-                    ⚡ Task
-                  </button>
+                  ${item.type === 'Link' ? `
+                    <button data-dash-convert-res="${item.id}" class="btn btn-secondary text-[10px] py-1 px-2 text-indigo-500" title="Pin to Vision Launchpad">
+                      📌 Pin Link
+                    </button>
+                  ` : (item.type === 'Idea' ? `
+                    <button data-dash-convert-goal="${item.id}" class="btn btn-secondary text-[10px] py-1 px-2 text-purple-500" title="Save as Goal">
+                      🎯 Goal
+                    </button>
+                    <button data-dash-convert-qc="${item.id}" class="btn btn-secondary text-[10px] py-1 px-2 text-accent" title="Convert to Task">
+                      ⚡ Task
+                    </button>
+                  ` : `
+                    <button data-dash-convert-qc="${item.id}" class="btn btn-secondary text-[10px] py-1 px-2 text-accent" title="Convert to Task">
+                      ⚡ Task
+                    </button>
+                  `)}
                   <button data-dash-delete-qc="${item.id}" class="btn btn-ghost btn-icon text-text-subtle hover:text-danger">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                   </button>
@@ -321,6 +334,20 @@ export function renderDashboard(container) {
     btn.addEventListener('click', (e) => {
       const id = e.currentTarget.getAttribute('data-dash-convert-qc');
       store.convertQuickCaptureToTask(id);
+    });
+  });
+
+  container.querySelectorAll('[data-dash-convert-res]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.currentTarget.getAttribute('data-dash-convert-res');
+      store.convertQuickCaptureToResource(id);
+    });
+  });
+
+  container.querySelectorAll('[data-dash-convert-goal]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.currentTarget.getAttribute('data-dash-convert-goal');
+      store.convertQuickCaptureToGoal(id);
     });
   });
 

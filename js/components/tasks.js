@@ -62,9 +62,22 @@ export function renderTasks(container) {
                     <span class="text-text font-medium truncate" title="${item.content}">${item.content}</span>
                   </div>
                   <div class="flex items-center gap-1 flex-shrink-0">
-                    <button data-tasks-convert-qc="${item.id}" class="btn btn-secondary text-[10px] py-0.5 px-2 text-accent" title="Convert to Task">
-                      ⚡ Convert
-                    </button>
+                    ${item.type === 'Link' ? `
+                      <button data-tasks-convert-res="${item.id}" class="btn btn-secondary text-[10px] py-0.5 px-2 text-indigo-500" title="Pin to Vision Launchpad">
+                        📌 Pin Link
+                      </button>
+                    ` : (item.type === 'Idea' ? `
+                      <button data-tasks-convert-goal="${item.id}" class="btn btn-secondary text-[10px] py-0.5 px-2 text-purple-500" title="Save as Goal">
+                        🎯 Goal
+                      </button>
+                      <button data-tasks-convert-qc="${item.id}" class="btn btn-secondary text-[10px] py-0.5 px-2 text-accent" title="Convert to Task">
+                        ⚡ Convert
+                      </button>
+                    ` : `
+                      <button data-tasks-convert-qc="${item.id}" class="btn btn-secondary text-[10px] py-0.5 px-2 text-accent" title="Convert to Task">
+                        ⚡ Convert
+                      </button>
+                    `)}
                     <button data-tasks-delete-qc="${item.id}" class="btn btn-ghost btn-icon text-text-subtle hover:text-danger">
                       <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                     </button>
@@ -557,6 +570,20 @@ export function renderTasks(container) {
       btn.addEventListener('click', (e) => {
         const id = e.currentTarget.getAttribute('data-tasks-convert-qc');
         store.convertQuickCaptureToTask(id);
+        renderView();
+      });
+    });
+    container.querySelectorAll('[data-tasks-convert-res]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-tasks-convert-res');
+        store.convertQuickCaptureToResource(id);
+        renderView();
+      });
+    });
+    container.querySelectorAll('[data-tasks-convert-goal]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-tasks-convert-goal');
+        store.convertQuickCaptureToGoal(id);
         renderView();
       });
     });

@@ -1083,6 +1083,40 @@ class Store {
     }
   }
 
+  convertQuickCaptureToResource(id) {
+    const item = this.data.quickCapture.find(q => q.id === id);
+    if (item) {
+      if (!this.data.resources) this.data.resources = [];
+      const cleanUrl = item.content.startsWith('http') ? item.content : 'https://' + item.content;
+      this.data.resources.unshift({
+        id: 'res-' + Date.now(),
+        title: item.content.length > 30 ? item.content.substring(0, 30) + '...' : item.content,
+        url: cleanUrl,
+        category: 'Bookmarks & Quick Links',
+        description: 'Captured via Quick Add',
+        isPinned: true
+      });
+      this.deleteQuickCapture(id);
+    }
+  }
+
+  convertQuickCaptureToGoal(id) {
+    const item = this.data.quickCapture.find(q => q.id === id);
+    if (item) {
+      if (!this.data.goals) this.data.goals = [];
+      this.data.goals.unshift({
+        id: 'goal-' + Date.now(),
+        title: item.content,
+        horizon: 'This Term',
+        category: 'Personal & Career',
+        status: 'In Progress',
+        progress: 10,
+        milestones: [{ id: 'm-1', title: 'Initial setup', completed: false }]
+      });
+      this.deleteQuickCapture(id);
+    }
+  }
+
   updateStickyNote(note) {
     this.data.stickyNote = note;
     this.saveData();
