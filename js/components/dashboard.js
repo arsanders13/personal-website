@@ -74,6 +74,62 @@ export function renderDashboard(container) {
         >${stickyNote}</textarea>
       </div>
 
+      <!-- Brain Dump & Quick Notes Inbox Widget -->
+      <div class="glass-card p-6 space-y-4 relative">
+        <div class="washi-tape washi-tape-right"></div>
+        <div class="flex items-center justify-between pb-2 border-b border-border">
+          <div class="flex items-center gap-2">
+            <h3 class="font-bold text-base text-text flex items-center gap-2">
+              <span>📥 Brain Dump & Quick Notes Inbox</span>
+            </h3>
+            <span class="badge bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs">${(data.quickCapture || []).length} items</span>
+          </div>
+          <button id="dash-open-qc-modal-btn" class="btn btn-primary text-xs">+ Quick Add (Cmd+J)</button>
+        </div>
+
+        <!-- Inline Quick Add Input -->
+        <form id="dash-qc-inline-form" class="flex items-center gap-2">
+          <input 
+            type="text" 
+            id="dash-qc-input"
+            placeholder="Jot down a quick thought, link, or idea..." 
+            class="input-field text-xs py-2"
+            required
+          />
+          <select id="dash-qc-type" class="input-field text-xs py-2 px-2 w-auto">
+            <option value="Idea">💡 Idea</option>
+            <option value="Task">✅ Task</option>
+            <option value="Link">🔗 Link</option>
+            <option value="Note">📝 Note</option>
+          </select>
+          <button type="submit" class="btn btn-secondary text-xs flex-shrink-0">Add</button>
+        </form>
+
+        <!-- List of Captured Quick Notes -->
+        ${(!data.quickCapture || data.quickCapture.length === 0) ? `
+          <p class="text-xs text-text-subtle py-4 text-center">Your Quick Notes Inbox is clear! Press <kbd class="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px]">Cmd+J</kbd> anytime to capture ideas on the fly.</p>
+        ` : `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-56 overflow-y-auto pt-1">
+            ${data.quickCapture.map(item => `
+              <div class="p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-border flex items-center justify-between gap-3 text-xs group hover:border-accent/40 transition-all">
+                <div class="flex items-center gap-2 min-w-0 pr-2">
+                  <span class="badge text-[9px] bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold">${item.type}</span>
+                  <span class="text-text font-medium truncate" title="${item.content}">${item.content}</span>
+                </div>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <button data-dash-convert-qc="${item.id}" class="btn btn-secondary text-[10px] py-1 px-2 text-accent" title="Convert to Task">
+                    ⚡ Task
+                  </button>
+                  <button data-dash-delete-qc="${item.id}" class="btn btn-ghost btn-icon text-text-subtle hover:text-danger">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+
       <!-- Pinned Resource Launchpad (Polaroid Pinterest Board Style Grid) -->
       ${pinnedResources.length > 0 ? `
         <div class="space-y-4">
@@ -247,11 +303,31 @@ export function renderDashboard(container) {
     });
   });
 
-  container.querySelectorAll('[data-dash-open-proj]').forEach(card => {
-    card.addEventListener('click', (e) => {
-      const id = e.currentTarget.getAttribute('data-dash-open-proj');
-      store.setActiveTab('projects');
-      store.setActiveProjectId(id);
+  container.querySelector('#dash-open-qc-modal-btn')?.addEventListener('click', () => {
+    const event = new KeyboardEvent('keydown', { key: 'j', ctrlKey: true });
+    window.dispatchEvent(event);
+  });
+
+  container.querySelector('#dash-qc-inline-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const content = document.getElementById('dash-qc-input').value.trim();
+    const type = document.getElementById('dash-qc-type').value;
+    if (content) {
+      store.addQuickCapture({ content, type });
+    }
+  });
+
+  container.querySelectorAll('[data-dash-convert-qc]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.currentTarget.getAttribute('data-dash-convert-qc');
+      store.convertQuickCaptureToTask(id);
+    });
+  });
+
+  container.querySelectorAll('[data-dash-delete-qc]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.currentTarget.getAttribute('data-dash-delete-qc');
+      store.deleteQuickCapture(id);
     });
   });
 

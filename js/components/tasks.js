@@ -36,9 +36,45 @@ export function renderTasks(container) {
     const priorities = ['All', 'urgent', 'high', 'medium', 'low'];
     const integrations = data.integrations || { powerPlanner: false, googleCalendar: false, canvas: false, lastSynced: null };
 
+    const quickCaptureItems = data.quickCapture || [];
+
     container.innerHTML = `
       <div class="space-y-6 animate-fade-in pb-12">
         
+        <!-- Brain Dump & Quick Notes Inbox Banner (if items exist) -->
+        ${quickCaptureItems.length > 0 ? `
+          <div class="glass-card p-4 bg-amber-500/10 border-amber-500/30 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-amber-700 dark:text-amber-400 font-bold text-sm flex items-center gap-1.5">
+                  <span>📥 Unprocessed Quick Notes Inbox</span>
+                </span>
+                <span class="badge bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs">${quickCaptureItems.length} items</span>
+              </div>
+              <span class="text-xs text-text-subtle">Click "⚡ Convert to Task" to schedule them!</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              ${quickCaptureItems.map(item => `
+                <div class="p-2.5 rounded-xl bg-white/50 dark:bg-white/5 border border-border flex items-center justify-between gap-2 text-xs">
+                  <div class="flex items-center gap-2 min-w-0 pr-1">
+                    <span class="badge text-[9px] bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold">${item.type}</span>
+                    <span class="text-text font-medium truncate" title="${item.content}">${item.content}</span>
+                  </div>
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <button data-tasks-convert-qc="${item.id}" class="btn btn-secondary text-[10px] py-0.5 px-2 text-accent" title="Convert to Task">
+                      ⚡ Convert
+                    </button>
+                    <button data-tasks-delete-qc="${item.id}" class="btn btn-ghost btn-icon text-text-subtle hover:text-danger">
+                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
         <!-- Schedule Integration & Sync Hub Banner -->
         <div class="glass-card p-5 bg-gradient-to-r from-accent/15 via-bg-card to-indigo-950/20 border-accent/30">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -497,6 +533,22 @@ export function renderTasks(container) {
     container.querySelector('#category-filter')?.addEventListener('change', (e) => { selectedCategory = e.target.value; renderView(); });
     container.querySelector('#priority-filter')?.addEventListener('change', (e) => { selectedPriority = e.target.value; renderView(); });
     container.querySelector('#tasks-search-input')?.addEventListener('input', (e) => { searchQuery = e.target.value; renderView(); });
+
+    // Quick Capture Inbox listeners
+    container.querySelectorAll('[data-tasks-convert-qc]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-tasks-convert-qc');
+        store.convertQuickCaptureToTask(id);
+        renderView();
+      });
+    });
+    container.querySelectorAll('[data-tasks-delete-qc]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-tasks-delete-qc');
+        store.deleteQuickCapture(id);
+        renderView();
+      });
+    });
 
     // External Schedule Sync Button
     container.querySelector('#sync-schedule-btn')?.addEventListener('click', () => {
