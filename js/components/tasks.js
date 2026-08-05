@@ -89,32 +89,37 @@ export function renderTasks(container) {
         ` : ''}
 
         <!-- Schedule Integration & Sync Hub Banner -->
-        <div class="glass-card p-5 bg-gradient-to-r from-amber-500/10 via-bg-card to-indigo-950/20 border-amber-500/30 space-y-3">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold">
-                <i data-lucide="calendar" class="w-5 h-5"></i>
+        ${!data.hideSyncBanner ? `
+          <div class="glass-card p-5 bg-gradient-to-r from-amber-500/10 via-bg-card to-indigo-950/20 border-amber-500/30 space-y-3">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold">
+                  <i data-lucide="calendar" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-base text-text flex items-center gap-2">
+                    <span>OSU Schedule & Calendar Controls</span>
+                  </h3>
+                  <p class="text-xs text-text-subtle">Toggle individual calendar feeds, sync external schedules, or unsync completely.</p>
+                </div>
               </div>
-              <div>
-                <h3 class="font-bold text-base text-text flex items-center gap-2">
-                  <span>OSU Schedule & Calendar Controls</span>
-                </h3>
-                <p class="text-xs text-text-subtle">Toggle individual calendar feeds, sync external schedules, or unsync completely.</p>
+
+              <div class="flex items-center gap-2 flex-wrap">
+                <button id="sync-schedule-btn" class="btn btn-primary text-xs py-1.5 px-3">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>${integrations.lastSynced ? `Synced (${integrations.lastSynced})` : 'Sync Sample Feeds'}</span>
+                </button>
+
+                <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all synced external calendar items">
+                  <i data-lucide="power" class="w-3.5 h-3.5"></i>
+                  <span>Unsync & Clear All</span>
+                </button>
+
+                <button id="hide-sync-banner-btn" class="btn btn-ghost btn-icon text-xs text-text-subtle" title="Hide calendar controls box">
+                  <i data-lucide="eye-off" class="w-4 h-4"></i>
+                </button>
               </div>
             </div>
-
-            <div class="flex items-center gap-2 flex-wrap">
-              <button id="sync-schedule-btn" class="btn btn-primary text-xs py-1.5 px-3">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                <span>${integrations.lastSynced ? `Synced (${integrations.lastSynced})` : 'Sync Schedules'}</span>
-              </button>
-
-              <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all synced external calendar items">
-                <i data-lucide="power" class="w-3.5 h-3.5"></i>
-                <span>Unsync All</span>
-              </button>
-            </div>
-          </div>
 
           <!-- Individual Feed Toggles -->
           <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50 text-xs">
@@ -136,6 +141,7 @@ export function renderTasks(container) {
             </label>
           </div>
         </div>
+        ` : ''}
 
         <!-- Active Focus Pomodoro Bar (if running) -->
         ${focusTask ? `
@@ -602,6 +608,11 @@ export function renderTasks(container) {
     });
     container.querySelector('#unsync-schedule-btn')?.addEventListener('click', () => {
       store.unsyncAllExternalSchedules();
+      renderView();
+    });
+    container.querySelector('#hide-sync-banner-btn')?.addEventListener('click', () => {
+      store.data.hideSyncBanner = true;
+      store.saveData();
       renderView();
     });
 

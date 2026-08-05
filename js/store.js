@@ -220,14 +220,33 @@ class Store {
   }
 
   unsyncAllExternalSchedules() {
-    this.data.tasks = this.data.tasks.filter(t => !t.sourceTag || (t.sourceTag !== 'Power Planner' && t.sourceTag !== 'Google Calendar' && t.sourceTag !== 'Canvas'));
+    this.data.tasks = this.data.tasks.filter(t => {
+      if (t.isExternal) return false;
+      if (t.id && t.id.startsWith('task-sync-')) return false;
+      if (t.sourceTag && (
+        t.sourceTag.includes('Power Planner') || 
+        t.sourceTag.includes('Google') || 
+        t.sourceTag.includes('Canvas') ||
+        t.sourceTag.includes('Sync')
+      )) return false;
+      if (t.title && (
+        t.title.includes('CSE 2221:') ||
+        t.title.includes('MATH 1151:') ||
+        t.title.includes('ENGR 1181:') ||
+        t.title.includes('Canvas HW:')
+      )) return false;
+      return true;
+    });
+
     this.data.integrations = {
       powerPlanner: false,
       googleCalendar: false,
       canvas: false,
       lastSynced: null
     };
+
     this.saveData();
+    this.notify();
   }
 
   toggleIntegration(source) {
@@ -236,16 +255,22 @@ class Store {
     }
     this.data.integrations[source] = !this.data.integrations[source];
     
-    const tagMap = {
-      powerPlanner: 'Power Planner',
-      googleCalendar: 'Google Calendar',
-      canvas: 'Canvas'
-    };
-    const targetTag = tagMap[source];
-    if (!this.data.integrations[source] && targetTag) {
-      this.data.tasks = this.data.tasks.filter(t => t.sourceTag !== targetTag);
+    if (!this.data.integrations[source]) {
+      const keywordMap = {
+        powerPlanner: ['Power Planner', 'CSE 2221:', 'MATH 1151:'],
+        googleCalendar: ['Google', 'ENGR 1181:'],
+        canvas: ['Canvas']
+      };
+      const keywords = keywordMap[source] || [];
+      this.data.tasks = this.data.tasks.filter(t => {
+        const matchTag = t.sourceTag && keywords.some(k => t.sourceTag.includes(k));
+        const matchTitle = t.title && keywords.some(k => t.title.includes(k));
+        return !(matchTag || matchTitle);
+      });
     }
+
     this.saveData();
+    this.notify();
   }
 
   updateTask(id, updates) {
