@@ -3,6 +3,7 @@ import { renderSidebar } from './components/sidebar.js';
 import { renderHeader } from './components/header.js';
 import { initCommandPalette } from './components/commandPalette.js';
 import { initQuickCaptureModal } from './components/quickCaptureModal.js';
+import { initAuthModal } from './components/authModal.js';
 
 import { renderDashboard } from './components/dashboard.js';
 import { renderTasks } from './components/tasks.js';
@@ -29,6 +30,14 @@ class App {
     // Global Modals Initialization
     initCommandPalette();
     initQuickCaptureModal();
+    initAuthModal();
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.log('SW registration notice:', err);
+      });
+    }
 
     // Register Keyboard Shortcut for Sidebar (Cmd+\)
     window.addEventListener('keydown', (e) => {

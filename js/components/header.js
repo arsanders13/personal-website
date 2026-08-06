@@ -37,10 +37,16 @@ export function renderHeader(container) {
         </button>
       </div>
 
-      <!-- Right: OSU Badge & Quick Add -->
+      <!-- Right: Account, OSU Badge & Quick Add -->
       <div class="flex items-center gap-3">
-        <span class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-950/40 text-red-300 border border-red-800/30">
-          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+        <!-- Account Status Button -->
+        <button id="header-auth-btn" class="btn btn-secondary text-xs py-1.5 px-3 flex items-center gap-2 border-indigo-500/30">
+          <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span class="font-semibold text-text">${store.currentUser ? (store.currentUser.user_metadata?.full_name || store.currentUser.email.split('@')[0]) : 'Sign In'}</span>
+        </button>
+
+        <span class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
           OSU CSE '30
         </span>
 
@@ -64,6 +70,10 @@ export function renderHeader(container) {
 
   container.querySelector('#mobile-sidebar-btn')?.addEventListener('click', () => {
     store.toggleSidebar();
+  });
+
+  container.querySelector('#header-auth-btn')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('open-auth-modal'));
   });
 
   if (window.lucide) {

@@ -1,4 +1,5 @@
 import { SEED_DATA } from './data/seed.js';
+import { supabaseService } from './supabase.js';
 
 const STORAGE_KEY = 'life_os_data_v2';
 const THEME_KEY = 'life_os_theme_v1';
@@ -13,8 +14,78 @@ class Store {
     this.activeTab = 'dashboard';
     this.activeProjectId = null;
     this.activeTopicId = null;
+    this.currentUser = null;
+    this.cloudUnsubscribe = null;
 
     this.applyTheme(this.theme);
+    this.initAuthSync();
+  }
+
+  async initAuthSync() {
+    try {
+      await supabaseService.getSession();
+      this.currentUser = supabaseService.currentUser;
+      this.notify();
+
+      supabaseService.onAuthStateChange(async (event, session) => {
+        this.currentUser = session?.user || null;
+        if (this.currentUser) {
+          const remotePayload = await supabaseService.fetchUserData(this.currentUser.id);
+          if (remotePayload) {
+            this.data = this.sanitizeData(remotePayload);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+          } else {
+            // First time user login - push current seed data
+            await supabaseService.saveUserData(this.currentUser.id, this.data);
+          }
+          if (this.cloudUnsubscribe) this.cloudUnsubscribe();
+          this.cloudUnsubscribe = supabaseService.subscribeToUserSync(this.currentUser.id, (payload) => {
+            if (payload) {
+              this.data = this.sanitizeData(payload);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+              this.notify();
+            }
+          });
+        }
+        this.notify();
+      });
+    } catch (e) {
+      console.warn('Auth sync init notice:', e);
+    }
+  }
+
+  sanitizeData(parsed) {
+    if (!parsed || typeof parsed !== 'object') {
+      parsed = JSON.parse(JSON.stringify(SEED_DATA));
+    }
+    if (!parsed.profile || !parsed.profile.name) {
+      parsed.profile = JSON.parse(JSON.stringify(SEED_DATA.profile));
+    }
+    if (!parsed.domains || parsed.domains.length === 0) {
+      parsed.domains = JSON.parse(JSON.stringify(SEED_DATA.domains));
+    }
+    if (!parsed.learning || parsed.learning.length === 0) {
+      parsed.learning = JSON.parse(JSON.stringify(SEED_DATA.learning));
+    }
+    if (!parsed.resources || parsed.resources.length === 0) {
+      parsed.resources = JSON.parse(JSON.stringify(SEED_DATA.resources));
+    }
+    if (!parsed.projects || parsed.projects.length === 0) {
+      parsed.projects = JSON.parse(JSON.stringify(SEED_DATA.projects));
+    }
+    if (!parsed.tasks || !Array.isArray(parsed.tasks)) {
+      parsed.tasks = JSON.parse(JSON.stringify(SEED_DATA.tasks));
+    }
+    if (!parsed.goals || !Array.isArray(parsed.goals)) {
+      parsed.goals = JSON.parse(JSON.stringify(SEED_DATA.goals));
+    }
+    if (!parsed.finance || typeof parsed.finance !== 'object') {
+      parsed.finance = JSON.parse(JSON.stringify(SEED_DATA.finance));
+    }
+    if (!parsed.quickCapture || !Array.isArray(parsed.quickCapture)) {
+      parsed.quickCapture = [];
+    }
+    return parsed;
   }
 
   loadData() {
@@ -61,6 +132,9 @@ class Store {
   saveData() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+      if (this.currentUser) {
+        supabaseService.saveUserData(this.currentUser.id, this.data);
+      }
     } catch (e) {
       console.error('Failed to save state:', e);
     }
