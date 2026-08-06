@@ -25,28 +25,45 @@ class Store {
     try {
       await supabaseService.getSession();
       this.currentUser = supabaseService.currentUser;
+      const targetSyncId = this.currentUser ? this.currentUser.id : 'default-dashboard';
+
+      const remotePayload = await supabaseService.fetchUserData(targetSyncId);
+      if (remotePayload) {
+        this.data = this.sanitizeData(remotePayload);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+      } else {
+        await supabaseService.saveUserData(targetSyncId, this.data);
+      }
+
+      if (this.cloudUnsubscribe) this.cloudUnsubscribe();
+      this.cloudUnsubscribe = supabaseService.subscribeToUserSync(targetSyncId, (payload) => {
+        if (payload) {
+          this.data = this.sanitizeData(payload);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+          this.notify();
+        }
+      });
+
       this.notify();
 
       supabaseService.onAuthStateChange(async (event, session) => {
         this.currentUser = session?.user || null;
-        if (this.currentUser) {
-          const remotePayload = await supabaseService.fetchUserData(this.currentUser.id);
-          if (remotePayload) {
-            this.data = this.sanitizeData(remotePayload);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
-          } else {
-            // First time user login - push current seed data
-            await supabaseService.saveUserData(this.currentUser.id, this.data);
-          }
-          if (this.cloudUnsubscribe) this.cloudUnsubscribe();
-          this.cloudUnsubscribe = supabaseService.subscribeToUserSync(this.currentUser.id, (payload) => {
-            if (payload) {
-              this.data = this.sanitizeData(payload);
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
-              this.notify();
-            }
-          });
+        const syncId = this.currentUser ? this.currentUser.id : 'default-dashboard';
+        const payload = await supabaseService.fetchUserData(syncId);
+        if (payload) {
+          this.data = this.sanitizeData(payload);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+        } else {
+          await supabaseService.saveUserData(syncId, this.data);
         }
+        if (this.cloudUnsubscribe) this.cloudUnsubscribe();
+        this.cloudUnsubscribe = supabaseService.subscribeToUserSync(syncId, (p) => {
+          if (p) {
+            this.data = this.sanitizeData(p);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+            this.notify();
+          }
+        });
         this.notify();
       });
     } catch (e) {
@@ -132,9 +149,8 @@ class Store {
   saveData() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
-      if (this.currentUser) {
-        supabaseService.saveUserData(this.currentUser.id, this.data);
-      }
+      const targetSyncId = this.currentUser ? this.currentUser.id : 'default-dashboard';
+      supabaseService.saveUserData(targetSyncId, this.data);
     } catch (e) {
       console.error('Failed to save state:', e);
     }
