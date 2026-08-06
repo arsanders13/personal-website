@@ -100,6 +100,16 @@ class App {
 }
 
 // Boot Life OS
-document.addEventListener('DOMContentLoaded', () => {
-  new App();
-});
+function bootApp() {
+  try {
+    new App();
+  } catch (err) {
+    console.error('Failed to boot Life OS App:', err);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootApp);
+} else {
+  bootApp();
+}
