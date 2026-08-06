@@ -39,12 +39,15 @@ export function renderFinance(container) {
 
     // --- Calculate Dynamic Totals ---
     const totalMonthlyIncome = incomeSources.reduce((sum, inc) => {
+      if (inc.status === 'Ended') return sum; // Ended internships don't inflate active monthly budget
       let monthlyVal = parseFloat(inc.amount) || 0;
       if (inc.frequency === 'Weekly') monthlyVal *= 4.33;
       else if (inc.frequency === 'Biweekly') monthlyVal *= 2.16;
       else if (inc.frequency === 'One-time') monthlyVal = 0;
       return sum + monthlyVal;
     }, 0);
+
+    const totalEarnedToDate = incomeSources.reduce((sum, inc) => sum + (parseFloat(inc.amount) || 0), 0);
 
     const totalBudgetedExpenses = categories.reduce((sum, cat) => sum + (parseFloat(cat.allocated) || 0), 0);
     const estimatedMonthlySavings = totalMonthlyIncome - totalBudgetedExpenses;
@@ -84,9 +87,9 @@ export function renderFinance(container) {
           <!-- 5 Summary KPI Stat Cards -->
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             <div class="p-4 rounded-2xl bg-white/5 border border-border space-y-1">
-              <span class="text-[10px] uppercase font-bold text-text-subtle">Monthly Income</span>
+              <span class="text-[10px] uppercase font-bold text-text-subtle">Active Monthly Income</span>
               <div class="text-xl font-extrabold text-emerald-400 font-mono">$${Math.round(totalMonthlyIncome).toLocaleString()}</div>
-              <span class="text-[10px] text-text-subtle font-mono">${incomeSources.length} Sources</span>
+              <span class="text-[10px] text-text-subtle font-mono">Logged Total: $${Math.round(totalEarnedToDate).toLocaleString()}</span>
             </div>
 
             <div class="p-4 rounded-2xl bg-white/5 border border-border space-y-1">
@@ -128,7 +131,7 @@ export function renderFinance(container) {
               <span class="text-lg">💵</span>
               <h3 class="font-bold text-base text-text">1. Income Sources</h3>
               <span class="badge bg-emerald-500/15 text-emerald-300 font-mono text-xs">
-                Total Est. Monthly: $${Math.round(totalMonthlyIncome)}/mo
+                Active Monthly: $${Math.round(totalMonthlyIncome)}/mo
               </span>
             </div>
             <div class="flex items-center gap-3">
@@ -146,22 +149,34 @@ export function renderFinance(container) {
                 <p class="text-xs text-text-subtle text-center py-4">No income sources added yet. Click "+ Add Income Source" to enter your part-time jobs, internships, scholarships, or family support.</p>
               ` : `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  ${incomeSources.map(inc => `
-                    <div class="p-4 rounded-2xl bg-white/5 border border-border flex items-start justify-between space-y-1">
-                      <div class="space-y-1">
-                        <div class="flex items-center gap-2">
-                          <span class="font-bold text-sm text-text">${inc.name}</span>
-                          <span class="badge text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">${inc.frequency}</span>
-                        </div>
-                        <div class="text-lg font-extrabold text-emerald-400 font-mono">$${inc.amount} <span class="text-xs font-normal text-text-subtle">/${inc.frequency.toLowerCase()}</span></div>
-                        ${inc.notes ? `<p class="text-xs text-text-subtle">${inc.notes}</p>` : ''}
-                      </div>
+                  ${incomeSources.map(inc => {
+                    const statusVal = inc.status || 'Active';
+                    const statusBadge = statusVal === 'Ended' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
+                                       statusVal === 'Planned' ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' :
+                                       'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+                    const statusLabel = statusVal === 'Ended' ? '🏁 Ended / Past' :
+                                        statusVal === 'Planned' ? '⏳ Planned' : '🟢 Active';
+                    const payPeriodLabel = inc.payPeriod ? `📅 ${inc.payPeriod}` : '';
 
-                      <button data-delete-inc="${inc.id}" class="btn btn-ghost btn-icon text-text-subtle hover:text-danger" title="Delete Source">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                      </button>
-                    </div>
-                  `).join('')}
+                    return `
+                      <div class="p-4 rounded-2xl bg-white/5 border border-border flex items-start justify-between space-y-1">
+                        <div class="space-y-1.5">
+                          <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-sm text-text">${inc.name}</span>
+                            <span class="badge text-[10px] ${statusBadge}">${statusLabel}</span>
+                            <span class="badge text-[10px] bg-white/10 text-text-subtle border border-border">${inc.frequency}</span>
+                            ${payPeriodLabel ? `<span class="badge text-[10px] bg-white/10 text-accent font-mono">${payPeriodLabel}</span>` : ''}
+                          </div>
+                          <div class="text-lg font-extrabold text-emerald-400 font-mono">$${inc.amount} <span class="text-xs font-normal text-text-subtle">/${inc.frequency.toLowerCase()}</span></div>
+                          ${inc.notes ? `<p class="text-xs text-text-subtle leading-relaxed">${inc.notes}</p>` : ''}
+                        </div>
+
+                        <button data-delete-inc="${inc.id}" class="btn btn-ghost btn-icon text-text-subtle hover:text-danger" title="Delete Source">
+                          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                      </div>
+                    `;
+                  }).join('')}
                 </div>
               `}
             </div>
@@ -686,7 +701,7 @@ function openAddIncomeModal() {
         <form id="create-inc-form" class="space-y-4">
           <div>
             <label class="text-xs font-semibold text-text-subtle block mb-1">Source Name *</label>
-            <input id="inc-name" type="text" class="input-field" placeholder="e.g. Part-time Job, Internship, Family Support" required autofocus />
+            <input id="inc-name" type="text" class="input-field" placeholder="e.g. Summer Internship, Grandma Allowance, Part-time Job" required autofocus />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
@@ -699,16 +714,32 @@ function openAddIncomeModal() {
               <label class="text-xs font-semibold text-text-subtle block mb-1">Frequency *</label>
               <select id="inc-freq" class="input-field">
                 <option value="Weekly">Weekly</option>
-                <option value="Biweekly">Biweekly</option>
+                <option value="Biweekly">Biweekly (Per Paycheck)</option>
                 <option value="Monthly" selected>Monthly</option>
-                <option value="One-time">One-time</option>
+                <option value="One-time">One-time / Total YTD</option>
               </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-semibold text-text-subtle block mb-1">Status *</label>
+              <select id="inc-status" class="input-field">
+                <option value="Active" selected>🟢 Active Pay</option>
+                <option value="Ended">🏁 Ended / Past Job</option>
+                <option value="Planned">⏳ Planned / Allowance</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-semibold text-text-subtle block mb-1">Pay Period / Date</label>
+              <input id="inc-payperiod" type="text" class="input-field" placeholder="e.g. Summer 2026, Aug 2026" />
             </div>
           </div>
 
           <div>
             <label class="text-xs font-semibold text-text-subtle block mb-1">Notes</label>
-            <textarea id="inc-notes" rows="2" class="input-field resize-none" placeholder="Details or notes..."></textarea>
+            <textarea id="inc-notes" rows="2" class="input-field resize-none" placeholder="Paycheck details, Grandma card access, etc..."></textarea>
           </div>
 
           <button type="submit" class="btn btn-primary w-full mt-4">
@@ -730,6 +761,8 @@ function openAddIncomeModal() {
       name: document.getElementById('inc-name').value,
       amount: document.getElementById('inc-amount').value,
       frequency: document.getElementById('inc-freq').value,
+      status: document.getElementById('inc-status').value,
+      payPeriod: document.getElementById('inc-payperiod').value,
       notes: document.getElementById('inc-notes').value
     });
     modal.remove();

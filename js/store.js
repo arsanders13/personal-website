@@ -971,9 +971,21 @@ class Store {
       name: source.name,
       amount: parseFloat(source.amount) || 0,
       frequency: source.frequency || 'Monthly',
+      status: source.status || 'Active',
+      payPeriod: source.payPeriod || '',
       notes: source.notes || ''
     });
     this.saveData();
+  }
+
+  updateIncomeSource(id, updates) {
+    if (this.data.finance.incomeSources) {
+      const inc = this.data.finance.incomeSources.find(i => i.id === id);
+      if (inc) {
+        Object.assign(inc, updates);
+        this.saveData();
+      }
+    }
   }
 
   deleteIncomeSource(id) {
