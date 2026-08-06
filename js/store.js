@@ -4,6 +4,7 @@ import { supabaseService } from './supabase.js';
 const STORAGE_KEY = 'life_os_data_v2';
 const THEME_KEY = 'life_os_theme_v1';
 const SIDEBAR_KEY = 'life_os_sidebar_v1';
+const TAB_KEY = 'life_os_active_tab_v1';
 
 class Store {
   constructor() {
@@ -11,7 +12,7 @@ class Store {
     this.data = this.loadData();
     this.theme = localStorage.getItem(THEME_KEY) || 'light';
     this.sidebarCollapsed = localStorage.getItem(SIDEBAR_KEY) === 'true';
-    this.activeTab = 'dashboard';
+    this.activeTab = this.getInitialTab();
     this.activeProjectId = null;
     this.activeTopicId = null;
     this.currentUser = null;
@@ -19,6 +20,19 @@ class Store {
 
     this.applyTheme(this.theme);
     this.initAuthSync();
+  }
+
+  getInitialTab() {
+    const hash = window.location.hash.replace('#', '').trim();
+    const validTabs = ['dashboard', 'tasks', 'goals', 'projects', 'learning', 'finance', 'wishlist', 'journal', 'resources', 'settings', 'archive'];
+    if (hash && validTabs.includes(hash)) {
+      return hash;
+    }
+    const savedTab = localStorage.getItem(TAB_KEY);
+    if (savedTab && validTabs.includes(savedTab)) {
+      return savedTab;
+    }
+    return 'dashboard';
   }
 
   async initAuthSync() {
@@ -196,6 +210,12 @@ class Store {
     this.activeTab = tab;
     this.activeProjectId = null;
     this.activeTopicId = null;
+    localStorage.setItem(TAB_KEY, tab);
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', `#${tab}`);
+    } else {
+      window.location.hash = tab;
+    }
     this.notify();
   }
 

@@ -47,6 +47,15 @@ class App {
       }
     });
 
+    // Register window hashchange listener for URL navigation & refresh persistence
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '').trim();
+      const validTabs = ['dashboard', 'tasks', 'goals', 'projects', 'learning', 'finance', 'wishlist', 'journal', 'resources', 'settings', 'archive'];
+      if (hash && validTabs.includes(hash) && store.activeTab !== hash) {
+        store.setActiveTab(hash);
+      }
+    });
+
     // Subscribe to Store updates
     store.subscribe(() => {
       this.render();
