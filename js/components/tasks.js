@@ -520,42 +520,36 @@ export function renderTasks(container) {
               return startH === hNum;
             });
 
-            let matchedTasksHTML = '';
-            if (matchedTasks.length === 0) {
-              matchedTasksHTML = `
-                <button 
-                  data-add-task-at-time="${h}" 
-                  class="w-full text-left text-xs text-text-subtle py-1.5 px-3 rounded-xl border border-dashed border-border hover:border-accent/40 hover:text-accent transition-all flex items-center justify-between"
-                >
-                  <span>+ Click to schedule task in ${h} slot</span>
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                </button>
-              `;
-            } else {
-              const itemsHTML = matchedTasks.map(t => {
-                const tag = t.sourceTag || 'Life OS';
-                const notesHTML = t.notes ? `<p class="text-[11px] text-text-subtle line-clamp-1">${t.notes}</p>` : '';
-                return `
-                  <div class="p-3 rounded-xl bg-accent/15 border border-accent/30 space-y-1">
-                    <div class="flex items-center justify-between">
-                      <span class="font-bold text-xs text-text">${t.title}</span>
-                      <span class="badge text-[9px] bg-white/10 text-accent font-mono">${tag}</span>
-                    </div>
-                    <div class="text-[11px] text-text-subtle font-mono">⏰ ${t.timeBlock.startTime} - ${t.timeBlock.endTime} (${t.estimatedTime || '1 hr'})</div>
-                    ${notesHTML}
-                  </div>
-                `;
-              }).join('');
-
-              matchedTasksHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-2">${itemsHTML}</div>`;
-            }
-
             return `
               <div class="flex items-start gap-4 p-3 rounded-2xl bg-white/5 border border-border hover:border-accent/30 transition-colors">
                 <div class="w-16 flex-shrink-0 text-xs font-bold font-mono text-text-subtle pt-1">${h}</div>
 
                 <div class="flex-1 space-y-2">
-                  ${matchedTasksHTML}
+                  ${matchedTasks.length === 0 ? `
+                    <button 
+                      data-add-task-at-time="${h}" 
+                      class="w-full text-left text-xs text-text-subtle py-1.5 px-3 rounded-xl border border-dashed border-border hover:border-accent/40 hover:text-accent transition-all flex items-center justify-between"
+                    >
+                      <span>+ Click to schedule task in ${h} slot</span>
+                      <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    </button>
+                  ` : `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      ${matchedTasks.map(t => {
+                        const tag = t.sourceTag || 'Life OS';
+                        return `
+                          <div class="p-3 rounded-xl bg-accent/15 border border-accent/30 space-y-1">
+                            <div class="flex items-center justify-between">
+                              <span class="font-bold text-xs text-text">${t.title}</span>
+                              <span class="badge text-[9px] bg-white/10 text-accent font-mono">${tag}</span>
+                            </div>
+                            <div class="text-[11px] text-text-subtle font-mono">⏰ ${t.timeBlock.startTime} - ${t.timeBlock.endTime} (${t.estimatedTime || '1 hr'})</div>
+                            ${t.notes ? `<p class="text-[11px] text-text-subtle line-clamp-1">${t.notes}</p>` : ''}
+                          </div>
+                        `;
+                      }).join('')}
+                    </div>
+                  `}
                 </div>
               </div>
             `;
