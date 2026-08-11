@@ -418,8 +418,17 @@ class Store {
     return { addedCount, mergedCount };
   }
 
+  clearAllTasks() {
+    this.data.tasks = [];
+    if (this.data.integrations) {
+      this.data.integrations.lastSynced = null;
+    }
+    this.saveData();
+    this.notify();
+  }
+
   clearAllSyncedDemoClasses() {
-    this.data.tasks = this.data.tasks.filter(t => !t.id.startsWith('task-sync-') && !t.id.startsWith('task-import-'));
+    this.data.tasks = [];
     if (this.data.integrations) {
       this.data.integrations.lastSynced = null;
     }

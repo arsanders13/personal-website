@@ -110,14 +110,9 @@ export function renderTasks(container) {
                   <span>Sync Real iCal / .ics File</span>
                 </button>
 
-                <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all sample demo classes">
+                <button id="wipe-all-tasks-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Wipe all tasks and reset task list">
                   <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                  <span>Clear Demo Data</span>
-                </button>
-
-                <button id="sync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3" title="Load sample demo classes for testing">
-                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                  <span>Load Sample Demo Data</span>
+                  <span>Wipe ALL Tasks</span>
                 </button>
 
                 <button id="hide-sync-banner-btn" class="btn btn-ghost btn-icon text-xs text-text-subtle" title="Hide calendar controls box">
@@ -624,13 +619,14 @@ export function renderTasks(container) {
     container.querySelector('#open-cal-import-btn')?.addEventListener('click', () => {
       window.dispatchEvent(new CustomEvent('open-calendar-import-modal'));
     });
-    container.querySelector('#sync-schedule-btn')?.addEventListener('click', () => {
-      store.syncExternalSchedules();
-      renderView();
+    // External Schedule Sync & Unsync Controls
+    container.querySelector('#open-cal-import-btn')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('open-calendar-import-modal'));
     });
-    container.querySelector('#unsync-schedule-btn')?.addEventListener('click', () => {
-      store.unsyncAllExternalSchedules();
-      renderView();
+    container.querySelector('#wipe-all-tasks-btn')?.addEventListener('click', () => {
+      if (confirm('Wipe all tasks and calendar items from your screen?')) {
+        store.clearAllTasks();
+      }
     });
     container.querySelector('#hide-sync-banner-btn')?.addEventListener('click', () => {
       store.data.hideSyncBanner = true;
