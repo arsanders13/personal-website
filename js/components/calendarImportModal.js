@@ -102,7 +102,7 @@ export function initCalendarImportModal() {
       reader.readAsText(file);
     });
 
-    // Handle URL Import
+    // Handle URL Import with CORS Proxy Fallback
     document.getElementById('import-url-btn')?.addEventListener('click', async () => {
       const url = document.getElementById('ical-url-input').value.trim();
       if (!url) {
@@ -111,16 +111,36 @@ export function initCalendarImportModal() {
       }
 
       try {
-        showMsg('Fetching calendar data...', false);
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Could not fetch iCal URL. Check permissions or URL format.');
-        const text = await res.text();
+        showMsg('⏳ Syncing calendar data from Google...', false);
+        let text = '';
+
+        // Try direct fetch first
+        try {
+          const res = await fetch(url);
+          if (res.ok) text = await res.text();
+        } catch (e) {
+          // Direct fetch failed (CORS block by browser). Use CORS Proxy Fallback!
+        }
+
+        // If direct fetch was blocked by CORS, fallback to CORS Proxy
+        if (!text) {
+          const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+          const res = await fetch(proxyUrl);
+          if (!res.ok) throw new Error('Could not fetch calendar URL. Please verify your Google Calendar secret iCal address.');
+          text = await res.text();
+        }
+
         const events = parseICSContent(text, 'Google Calendar');
+        if (!events || events.length === 0) {
+          showMsg('No valid events found in calendar feed. Please ensure the link is a public or secret iCal address (.ics).', true);
+          return;
+        }
+
         const { addedCount, mergedCount } = store.importParsedCalendarEvents(events);
-        showMsg(`✅ Imported ${addedCount} new events (${mergedCount} overlapping events merged cleanly)!`, false);
+        showMsg(`✅ Successfully imported ${addedCount} events (${mergedCount} duplicates merged cleanly)!`, false);
         setTimeout(() => modal.remove(), 2000);
       } catch (err) {
-        showMsg(err.message || 'Failed to import iCal URL. You can also export the .ics file and upload it above.', true);
+        showMsg('⚠️ Google Calendar blocked direct fetch due to browser security. Please export your .ics file from Google Calendar or Power Planner and use "Method 1: Upload .ics File" above!', true);
       }
     });
   }
