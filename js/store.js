@@ -361,9 +361,17 @@ class Store {
       powerPlanner: true,
       googleCalendar: true,
       canvas: true,
-      lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      lastSynced: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
 
+    this.saveData();
+  }
+
+  clearAllSyncedDemoClasses() {
+    this.data.tasks = this.data.tasks.filter(t => !t.id.startsWith('task-sync-'));
+    if (this.data.integrations) {
+      this.data.integrations.lastSynced = null;
+    }
     this.saveData();
   }
 

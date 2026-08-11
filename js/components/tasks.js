@@ -98,21 +98,21 @@ export function renderTasks(container) {
                 </div>
                 <div>
                   <h3 class="font-bold text-base text-text flex items-center gap-2">
-                    <span>OSU Schedule & Calendar Controls</span>
+                    <span>OSU Schedule & Course Controls</span>
                   </h3>
-                  <p class="text-xs text-text-subtle">Toggle individual calendar feeds, sync external schedules, or unsync completely.</p>
+                  <p class="text-xs text-text-subtle">Click "Clear Demo Data" to remove sample classes, or add your real Power Planner & Google Calendar schedule.</p>
                 </div>
               </div>
 
               <div class="flex items-center gap-2 flex-wrap">
-                <button id="sync-schedule-btn" class="btn btn-primary text-xs py-1.5 px-3">
-                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                  <span>${integrations.lastSynced ? `Synced (${integrations.lastSynced})` : 'Sync Sample Feeds'}</span>
+                <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all sample demo classes">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <span>Clear Demo Data</span>
                 </button>
 
-                <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all synced external calendar items">
-                  <i data-lucide="power" class="w-3.5 h-3.5"></i>
-                  <span>Unsync & Clear All</span>
+                <button id="sync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3" title="Load sample demo classes for testing">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>Load Sample Demo Data</span>
                 </button>
 
                 <button id="hide-sync-banner-btn" class="btn btn-ghost btn-icon text-xs text-text-subtle" title="Hide calendar controls box">
@@ -121,26 +121,27 @@ export function renderTasks(container) {
               </div>
             </div>
 
-          <!-- Individual Feed Toggles -->
-          <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50 text-xs">
-            <span class="text-text-subtle font-semibold">Calendar Feeds:</span>
-            
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="toggle-pp" ${integrations.powerPlanner ? 'checked' : ''} class="rounded text-accent" />
-              <span class="text-text font-medium">Power Planner</span>
-            </label>
+            <!-- Feed Toggles & Real Schedule Setup -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-border/50 text-xs">
+              <div class="flex items-center gap-3">
+                <span class="text-text-subtle font-semibold">Calendar Sources:</span>
+                
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" id="toggle-pp" ${integrations.powerPlanner ? 'checked' : ''} class="rounded text-accent" />
+                  <span class="text-text font-medium">Power Planner</span>
+                </label>
 
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="toggle-gcal" ${integrations.googleCalendar ? 'checked' : ''} class="rounded text-accent" />
-              <span class="text-text font-medium">Google Calendar</span>
-            </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" id="toggle-gcal" ${integrations.googleCalendar ? 'checked' : ''} class="rounded text-accent" />
+                  <span class="text-text font-medium">Google Calendar</span>
+                </label>
+              </div>
 
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="toggle-canvas" ${integrations.canvas ? 'checked' : ''} class="rounded text-accent" />
-              <span class="text-text font-medium">Canvas LMS</span>
-            </label>
+              <span class="text-[11px] text-text-subtle">
+                💡 Tip: Click <strong>"New Task"</strong> to enter your real class times & rooms!
+              </span>
+            </div>
           </div>
-        </div>
         ` : ''}
 
         <!-- Active Focus Pomodoro Bar (if running) -->
