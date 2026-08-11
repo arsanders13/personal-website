@@ -1,42 +1,43 @@
 import { store } from '../store.js';
 
 export function renderTasks(container) {
-  const { data } = store;
-  let currentView = 'list'; // 'list' | 'kanban' | 'calendar' | 'timeblock'
-  let selectedCategory = 'All';
-  let selectedPriority = 'All';
-  let searchQuery = '';
-  
-  // Dynamic Real-Time Date Initialization (Defaults to actual today: July 29, 2026)
-  const realNow = new Date();
-  let activeYear = realNow.getFullYear();
-  let activeMonth = realNow.getMonth(); // 0-indexed (6 = July)
-  let activeDay = realNow.getDate(); // 29
+  try {
+    const { data } = store;
+    let currentView = 'list'; // 'list' | 'kanban' | 'calendar' | 'timeblock'
+    let selectedCategory = 'All';
+    let selectedPriority = 'All';
+    let searchQuery = '';
+    
+    // Dynamic Real-Time Date Initialization
+    const realNow = new Date();
+    let activeYear = realNow.getFullYear();
+    let activeMonth = realNow.getMonth(); // 0-indexed
+    let activeDay = realNow.getDate();
 
-  // Pomodoro Focus Timer State
-  let focusTask = null;
-  let focusSeconds = 1500; // 25 mins
-  let focusTimerId = null;
+    // Pomodoro Focus Timer State
+    let focusTask = null;
+    let focusSeconds = 1500; // 25 mins
+    let focusTimerId = null;
 
-  function renderView() {
-    let filteredTasks = data.tasks;
+    function renderView() {
+      let filteredTasks = (Array.isArray(data.tasks) ? data.tasks : []).filter(t => t && typeof t === 'object' && t.id);
 
-    if (selectedCategory !== 'All') {
-      filteredTasks = filteredTasks.filter(t => t.category === selectedCategory);
-    }
-    if (selectedPriority !== 'All') {
-      filteredTasks = filteredTasks.filter(t => t.priority === selectedPriority);
-    }
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      filteredTasks = filteredTasks.filter(t => t.title.toLowerCase().includes(q) || (t.notes && t.notes.toLowerCase().includes(q)));
-    }
+      if (selectedCategory !== 'All') {
+        filteredTasks = filteredTasks.filter(t => t && t.category === selectedCategory);
+      }
+      if (selectedPriority !== 'All') {
+        filteredTasks = filteredTasks.filter(t => t && t.priority === selectedPriority);
+      }
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        filteredTasks = filteredTasks.filter(t => t && t.title && (t.title.toLowerCase().includes(q) || (t.notes && t.notes.toLowerCase().includes(q))));
+      }
 
-    const categories = ['All', 'Personal', 'Errands', 'Career', 'School (non-hw)', 'Clubs', 'Health', 'Shopping'];
-    const priorities = ['All', 'urgent', 'high', 'medium', 'low'];
-    const integrations = data.integrations || { powerPlanner: false, googleCalendar: false, canvas: false, lastSynced: null };
+      const categories = ['All', 'Personal', 'Errands', 'Career', 'School (non-hw)', 'Clubs', 'Health', 'Shopping'];
+      const priorities = ['All', 'urgent', 'high', 'medium', 'low'];
+      const integrations = data.integrations || { powerPlanner: false, googleCalendar: false, canvas: false, lastSynced: null };
 
-    const quickCaptureItems = data.quickCapture || [];
+      const quickCaptureItems = data.quickCapture || [];
 
     container.innerHTML = `
       <div class="space-y-6 animate-fade-in pb-12">
@@ -1085,4 +1086,19 @@ export function renderTasks(container) {
       renderView();
     }
   });
+  } catch (err) {
+    console.error('Task view render error:', err);
+    container.innerHTML = `
+      <div class="glass-card p-8 text-center space-y-4 max-w-md mx-auto my-12">
+        <div class="w-12 h-12 rounded-full bg-danger/20 text-danger flex items-center justify-center mx-auto">
+          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+        </div>
+        <h3 class="font-bold text-base text-text">Tasks View Recovery</h3>
+        <p class="text-xs text-text-subtle">A task item had missing properties. Click below to reset your task list safely.</p>
+        <button onclick="localStorage.removeItem('life_os_data'); window.location.reload();" class="btn btn-primary text-xs py-2 px-4">
+          <span>Reset Task Data & Reload</span>
+        </button>
+      </div>
+    `;
+  }
 }
