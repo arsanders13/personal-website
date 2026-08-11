@@ -367,8 +367,58 @@ class Store {
     this.saveData();
   }
 
+  importParsedCalendarEvents(events) {
+    let addedCount = 0;
+    let mergedCount = 0;
+
+    events.forEach(newEvent => {
+      const normTitle = (newEvent.title || '').toLowerCase().trim();
+      const date = newEvent.dueDate || new Date().toISOString().split('T')[0];
+      const startT = newEvent.startTime;
+
+      // Smart AI Deduplication Check
+      const duplicate = this.data.tasks.find(t => {
+        const existingTitle = (t.title || '').toLowerCase().trim();
+        const sameDate = t.dueDate === date;
+        const sameTitle = existingTitle.includes(normTitle) || normTitle.includes(existingTitle);
+        const sameTime = t.timeBlock && startT && t.timeBlock.startTime === startT;
+        return sameDate && (sameTitle || sameTime);
+      });
+
+      if (duplicate) {
+        if (newEvent.sourceTag && !duplicate.sourceTag.includes(newEvent.sourceTag)) {
+          duplicate.sourceTag = `${duplicate.sourceTag} + ${newEvent.sourceTag}`;
+        }
+        if (newEvent.notes && !duplicate.notes?.includes(newEvent.notes)) {
+          duplicate.notes = `${duplicate.notes || ''} | ${newEvent.notes}`.trim();
+        }
+        mergedCount++;
+      } else {
+        this.data.tasks.unshift({
+          id: 'task-import-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+          title: newEvent.title,
+          priority: 'medium',
+          category: 'School (non-hw)',
+          dueDate: date,
+          startDate: date,
+          timeBlock: newEvent.startTime && newEvent.endTime ? { startTime: newEvent.startTime, endTime: newEvent.endTime } : null,
+          sourceTag: newEvent.sourceTag || 'Google Calendar',
+          status: 'todo',
+          subtasks: [],
+          notes: newEvent.notes || ''
+        });
+        addedCount++;
+      }
+    });
+
+    if (!this.data.integrations) this.data.integrations = {};
+    this.data.integrations.lastSynced = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    this.saveData();
+    return { addedCount, mergedCount };
+  }
+
   clearAllSyncedDemoClasses() {
-    this.data.tasks = this.data.tasks.filter(t => !t.id.startsWith('task-sync-'));
+    this.data.tasks = this.data.tasks.filter(t => !t.id.startsWith('task-sync-') && !t.id.startsWith('task-import-'));
     if (this.data.integrations) {
       this.data.integrations.lastSynced = null;
     }

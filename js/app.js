@@ -4,6 +4,7 @@ import { renderHeader } from './components/header.js';
 import { initCommandPalette } from './components/commandPalette.js';
 import { initQuickCaptureModal } from './components/quickCaptureModal.js';
 import { initAuthModal } from './components/authModal.js';
+import { initCalendarImportModal } from './components/calendarImportModal.js';
 
 import { renderDashboard } from './components/dashboard.js';
 import { renderTasks } from './components/tasks.js';
@@ -31,6 +32,7 @@ class App {
     initCommandPalette();
     initQuickCaptureModal();
     initAuthModal();
+    initCalendarImportModal();
 
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {

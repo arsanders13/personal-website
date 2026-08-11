@@ -105,6 +105,11 @@ export function renderTasks(container) {
               </div>
 
               <div class="flex items-center gap-2 flex-wrap">
+                <button id="open-cal-import-btn" class="btn btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5 shadow-lg shadow-amber-500/20" title="Import real Google Calendar or Power Planner .ics file or iCal secret link">
+                  <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
+                  <span>Sync Real iCal / .ics File</span>
+                </button>
+
                 <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all sample demo classes">
                   <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                   <span>Clear Demo Data</span>
@@ -616,6 +621,9 @@ export function renderTasks(container) {
     });
 
     // External Schedule Sync & Unsync Controls
+    container.querySelector('#open-cal-import-btn')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('open-calendar-import-modal'));
+    });
     container.querySelector('#sync-schedule-btn')?.addEventListener('click', () => {
       store.syncExternalSchedules();
       renderView();
