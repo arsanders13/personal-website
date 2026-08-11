@@ -361,10 +361,11 @@ class Store {
       powerPlanner: true,
       googleCalendar: true,
       canvas: true,
-      lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      lastSynced: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
 
     this.saveData();
+    this.notify();
   }
 
   unsyncAllExternalSchedules() {
@@ -399,24 +400,9 @@ class Store {
 
   toggleIntegration(source) {
     if (!this.data.integrations) {
-      this.data.integrations = { powerPlanner: false, googleCalendar: false, canvas: false, lastSynced: null };
+      this.data.integrations = { powerPlanner: true, googleCalendar: true, canvas: true, lastSynced: null };
     }
     this.data.integrations[source] = !this.data.integrations[source];
-    
-    if (!this.data.integrations[source]) {
-      const keywordMap = {
-        powerPlanner: ['Power Planner', 'CSE 2221:', 'MATH 1151:'],
-        googleCalendar: ['Google', 'ENGR 1181:'],
-        canvas: ['Canvas']
-      };
-      const keywords = keywordMap[source] || [];
-      this.data.tasks = this.data.tasks.filter(t => {
-        const matchTag = t.sourceTag && keywords.some(k => t.sourceTag.includes(k));
-        const matchTitle = t.title && keywords.some(k => t.title.includes(k));
-        return !(matchTag || matchTitle);
-      });
-    }
-
     this.saveData();
     this.notify();
   }

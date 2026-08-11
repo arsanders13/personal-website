@@ -19,22 +19,31 @@ export function renderTasks(container) {
   let focusTimerId = null;
 
   function renderView() {
-    let filteredTasks = data.tasks;
+    const integrations = data.integrations || { powerPlanner: true, googleCalendar: true, canvas: true, lastSynced: null };
+    let filteredTasks = (Array.isArray(data.tasks) ? data.tasks : []).filter(t => t && typeof t === 'object' && t.id);
+
+    // Live Calendar Feed Checkbox Filtering
+    filteredTasks = filteredTasks.filter(t => {
+      const src = t.sourceTag || 'Life OS';
+      if (src.includes('Power Planner') && !integrations.powerPlanner) return false;
+      if (src.includes('Google Calendar') && !integrations.googleCalendar) return false;
+      if (src.includes('Canvas') && !integrations.canvas) return false;
+      return true;
+    });
 
     if (selectedCategory !== 'All') {
-      filteredTasks = filteredTasks.filter(t => t.category === selectedCategory);
+      filteredTasks = filteredTasks.filter(t => t && t.category === selectedCategory);
     }
     if (selectedPriority !== 'All') {
-      filteredTasks = filteredTasks.filter(t => t.priority === selectedPriority);
+      filteredTasks = filteredTasks.filter(t => t && t.priority === selectedPriority);
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      filteredTasks = filteredTasks.filter(t => t.title.toLowerCase().includes(q) || (t.notes && t.notes.toLowerCase().includes(q)));
+      filteredTasks = filteredTasks.filter(t => t && t.title && (t.title.toLowerCase().includes(q) || (t.notes && t.notes.toLowerCase().includes(q))));
     }
 
     const categories = ['All', 'Personal', 'Errands', 'Career', 'School (non-hw)', 'Clubs', 'Health', 'Shopping'];
     const priorities = ['All', 'urgent', 'high', 'medium', 'low'];
-    const integrations = data.integrations || { powerPlanner: false, googleCalendar: false, canvas: false, lastSynced: null };
 
     const quickCaptureItems = data.quickCapture || [];
 
