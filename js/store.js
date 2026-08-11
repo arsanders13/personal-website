@@ -247,8 +247,10 @@ class Store {
       taskType: task.taskType || (startDate !== dueDate ? 'multi-day' : 'single'),
       timeBlock: task.timeBlock || null, // { startTime: '09:00', endTime: '10:00' }
       estimatedTime: task.estimatedTime || '', // e.g. "45 mins"
-      sourceTag: task.sourceTag || 'Life OS', // "Life OS", "Power Planner", "Google Calendar", "Canvas"
+      sourceTag: task.sourceTag || 'Life OS',
       status: task.status || 'todo',
+      projectId: task.projectId || null,
+      goalId: task.goalId || null,
       subtasks: Array.isArray(task.subtasks) ? task.subtasks : [],
       repeating: task.repeating || 'none',
       tags: task.tags || [],

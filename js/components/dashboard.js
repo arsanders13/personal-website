@@ -9,7 +9,14 @@ export function renderDashboard(container) {
   const resources = data.resources || [];
   const stickyNote = data.stickyNote || '🎯 Set your top priorities for this week!';
 
-  const activeFocusTasks = tasks.filter(t => t.status !== 'done').slice(0, 4);
+  const todayStr = new Date().toISOString().split('T')[0];
+  const activeFocusTasks = tasks.filter(t => {
+    if (t.status === 'done') return false;
+    const isOverdue = t.dueDate && t.dueDate < todayStr;
+    const isToday = t.dueDate === todayStr;
+    const isHighPriority = t.priority === 'high' || t.priority === 'urgent';
+    return isOverdue || isToday || isHighPriority;
+  }).slice(0, 5);
   const activeGoalsList = goals.slice(0, 3);
   const recentProjectsList = projects.slice(0, 3);
   const pinnedResources = resources.filter(r => r.isPinned).slice(0, 6);
@@ -177,13 +184,13 @@ export function renderDashboard(container) {
         <!-- Left 2 Columns: Priority Action Items & Projects -->
         <div class="lg:col-span-2 space-y-8">
           
-          <!-- Focus Tasks -->
+          <!-- Today's Tasks & Priority Focus Widget -->
           <div class="glass-card p-6 space-y-4">
             <div class="flex items-center justify-between pb-2 border-b border-border">
               <h3 class="font-bold text-base text-text flex items-center gap-2">
-                <span>⚡ Priority Next Steps</span>
+                <span>⚡ Today's Priority Action Items</span>
               </h3>
-              <button id="go-tasks-btn" class="btn btn-ghost text-xs text-accent">Tasks Engine →</button>
+              <button id="go-tasks-btn" class="btn btn-ghost text-xs text-accent font-bold">View All Tasks →</button>
             </div>
 
             ${activeFocusTasks.length === 0 ? `
