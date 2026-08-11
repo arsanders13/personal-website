@@ -619,10 +619,6 @@ export function renderTasks(container) {
     container.querySelector('#open-cal-import-btn')?.addEventListener('click', () => {
       window.dispatchEvent(new CustomEvent('open-calendar-import-modal'));
     });
-    // External Schedule Sync & Unsync Controls
-    container.querySelector('#open-cal-import-btn')?.addEventListener('click', () => {
-      window.dispatchEvent(new CustomEvent('open-calendar-import-modal'));
-    });
     container.querySelector('#wipe-all-tasks-btn')?.addEventListener('click', () => {
       if (confirm('Wipe all tasks and calendar items from your screen?')) {
         store.clearAllTasks();

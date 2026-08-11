@@ -205,14 +205,18 @@ export function initCalendarImportModal() {
         const filterFuture = document.getElementById('filter-future-only').checked;
         const tagSchedule = document.getElementById('filter-schedule-only').checked;
 
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayDate = new Date();
+        todayDate.setHours(0, 0, 0, 0);
         let finalEvents = [];
 
         selectedIndices.forEach(idx => {
           const cal = cals[idx];
           cal.events.forEach(ev => {
-            // Check future filter
-            if (filterFuture && ev.dueDate && ev.dueDate < todayStr) return;
+            // Check future filter safely using Date timestamps
+            if (filterFuture && ev.dueDate) {
+              const evDate = new Date(ev.dueDate);
+              if (!isNaN(evDate.getTime()) && evDate < todayDate) return;
+            }
             if (tagSchedule) ev.sourceTag = `${cal.name} (Schedule Feed)`;
             finalEvents.push(ev);
           });
