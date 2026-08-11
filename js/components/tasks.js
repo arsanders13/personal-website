@@ -285,6 +285,9 @@ export function renderTasks(container) {
     else if (sourceTag === 'Google Calendar') tagColorClass = 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
     else if (sourceTag === 'Canvas') tagColorClass = 'bg-amber-500/15 text-amber-300 border-amber-500/30';
 
+    const isMultiDay = (t.startDate && t.dueDate && t.startDate !== t.dueDate) || t.taskType === 'multi-day';
+    const dateDisplay = isMultiDay ? `📅 ${t.startDate || t.dueDate} ➔ ${t.dueDate}` : `📅 ${t.dueDate}`;
+
     return `
       <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-white/5 border border-border hover:border-accent/30 transition-all duration-150 gap-3 group">
         <div class="flex items-start gap-3 min-w-0">
@@ -302,6 +305,7 @@ export function renderTasks(container) {
               <span class="badge badge-${t.priority}">${t.priority}</span>
               <span class="category-pill">${t.category}</span>
               <span class="badge text-[10px] font-mono border ${tagColorClass}">${sourceTag}</span>
+              ${isMultiDay ? `<span class="badge bg-purple-500/20 text-purple-300 font-mono text-[10px] border border-purple-500/30">📅 Multi-Day Span</span>` : ''}
               ${t.timeBlock ? `<span class="badge bg-white/10 text-text-subtle font-mono text-[10px]">⏰ ${t.timeBlock.startTime} - ${t.timeBlock.endTime}</span>` : ''}
               ${t.estimatedTime ? `<span class="text-[11px] text-text-subtle font-mono">⌛ ${t.estimatedTime}</span>` : ''}
             </div>
@@ -309,11 +313,14 @@ export function renderTasks(container) {
             ${t.notes ? `<p class="text-xs text-text-subtle line-clamp-1">${t.notes}</p>` : ''}
             
             <!-- Subtasks checklist -->
-            ${totalSub > 0 ? `
-              <div class="pt-1.5 space-y-1">
-                <div class="flex items-center gap-2 text-[11px] text-text-subtle">
-                  <span>Subtasks checklist (${completedSub}/${totalSub})</span>
-                </div>
+            <div class="pt-1.5 space-y-1">
+              <div class="flex items-center gap-2 text-[11px] text-text-subtle">
+                <span>Subtasks checklist (${completedSub}/${totalSub})</span>
+                <button data-quick-add-subtask="${t.id}" class="text-accent hover:underline font-medium text-[11px]">
+                  + Add Step
+                </button>
+              </div>
+              ${totalSub > 0 ? `
                 <div class="flex flex-wrap gap-2">
                   ${t.subtasks.map(st => `
                     <button 
@@ -324,13 +331,13 @@ export function renderTasks(container) {
                     </button>
                   `).join('')}
                 </div>
-              </div>
-            ` : ''}
+              ` : ''}
+            </div>
           </div>
         </div>
 
         <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
-          <span class="text-xs text-text-subtle font-mono">${t.dueDate}</span>
+          <span class="text-xs text-text-subtle font-mono">${dateDisplay}</span>
           ${t.status !== 'done' ? `
             <button data-start-focus="${t.id}" class="btn btn-secondary text-xs py-1 px-2.5 flex items-center gap-1.5" title="Start 25-min Focus Timer">
               <i data-lucide="play" class="w-3.5 h-3.5 text-emerald-400"></i>
@@ -739,11 +746,22 @@ export function renderTasks(container) {
       });
     });
 
-    // Subtask toggles
+    // Subtask toggles & quick add
     container.querySelectorAll('[data-toggle-subtask]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const [taskId, subtaskId] = e.currentTarget.getAttribute('data-toggle-subtask').split(':');
         store.toggleSubtask(taskId, subtaskId);
+      });
+    });
+
+    container.querySelectorAll('[data-quick-add-subtask]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const taskId = e.currentTarget.getAttribute('data-quick-add-subtask');
+        const text = prompt('Add checklist step (e.g. "Browse coats on Depop", "Compare prices"):');
+        if (text && text.trim()) {
+          store.addSubtask(taskId, text.trim());
+        }
       });
     });
 
@@ -816,21 +834,41 @@ export function renderTasks(container) {
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
               <div>
-                <label class="text-xs font-semibold text-text-subtle block mb-1">Due Date</label>
-                <input id="t-duedate" type="date" class="input-field" value="${prefillDate || `${activeYear}-08-${activeDay.toString().padStart(2, '0')}`}" />
+                <label class="text-xs font-semibold text-text-subtle block mb-1">Task Type</label>
+                <select id="t-tasktype" class="input-field">
+                  <option value="single" selected>Single Day</option>
+                  <option value="multi-day">Multi-Day Span</option>
+                  <option value="ongoing">Flexible / Ongoing</option>
+                </select>
               </div>
 
               <div>
-                <label class="text-xs font-semibold text-text-subtle block mb-1">Schedule Source</label>
-                <select id="t-sourcetag" class="input-field">
-                  <option value="Life OS" selected>Life OS</option>
-                  <option value="Power Planner">Power Planner</option>
-                  <option value="Google Calendar">Google Calendar</option>
-                  <option value="Canvas">Canvas LMS</option>
-                </select>
+                <label class="text-xs font-semibold text-text-subtle block mb-1">Start Date</label>
+                <input id="t-startdate" type="date" class="input-field" value="${prefillDate || `${activeYear}-08-${activeDay.toString().padStart(2, '0')}`}" />
               </div>
+
+              <div>
+                <label class="text-xs font-semibold text-text-subtle block mb-1">End / Due Date</label>
+                <input id="t-duedate" type="date" class="input-field" value="${prefillDate || `${activeYear}-08-${activeDay.toString().padStart(2, '0')}`}" />
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs font-semibold text-text-subtle block mb-1">Schedule Source</label>
+              <select id="t-sourcetag" class="input-field">
+                <option value="Life OS" selected>Life OS</option>
+                <option value="Power Planner">Power Planner</option>
+                <option value="Google Calendar">Google Calendar</option>
+                <option value="Canvas">Canvas LMS</option>
+              </select>
+            </div>
+
+            <!-- Subtask Checklist Steps -->
+            <div>
+              <label class="text-xs font-semibold text-text-subtle block mb-1">Subtask Checklist Steps (Comma-separated)</label>
+              <input id="t-subtasks-input" type="text" class="input-field" placeholder="e.g. Browse vintage coats, Check seller ratings, Compare prices" />
             </div>
 
             <!-- Time-Blocking & Estimated Duration -->
@@ -876,13 +914,21 @@ export function renderTasks(container) {
       e.preventDefault();
       const startTime = document.getElementById('t-starttime').value;
       const endTime = document.getElementById('t-endtime').value;
+      const subtasksRaw = document.getElementById('t-subtasks-input').value.split(',');
+      const subtasks = subtasksRaw
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+        .map((title, idx) => ({ id: `st-${Date.now()}-${idx}`, title, completed: false }));
 
       store.addTask({
         title: document.getElementById('t-title').value,
         priority: document.getElementById('t-priority').value,
         category: document.getElementById('t-category').value,
+        startDate: document.getElementById('t-startdate').value,
         dueDate: document.getElementById('t-duedate').value,
+        taskType: document.getElementById('t-tasktype').value,
         sourceTag: document.getElementById('t-sourcetag').value,
+        subtasks: subtasks,
         timeBlock: startTime && endTime ? { startTime, endTime } : null,
         estimatedTime: document.getElementById('t-estimatedtime').value,
         notes: document.getElementById('t-notes').value
@@ -936,11 +982,26 @@ export function renderTasks(container) {
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
               <div>
-                <label class="text-xs font-semibold text-text-subtle block mb-1">Due Date</label>
+                <label class="text-xs font-semibold text-text-subtle block mb-1">Task Type</label>
+                <select id="et-tasktype" class="input-field">
+                  <option value="single" ${(task.taskType || 'single') === 'single' ? 'selected' : ''}>Single Day</option>
+                  <option value="multi-day" ${task.taskType === 'multi-day' ? 'selected' : ''}>Multi-Day Span</option>
+                  <option value="ongoing" ${task.taskType === 'ongoing' ? 'selected' : ''}>Flexible / Ongoing</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs font-semibold text-text-subtle block mb-1">Start Date</label>
+                <input id="et-startdate" type="date" class="input-field" value="${task.startDate || task.dueDate || ''}" />
+              </div>
+
+              <div>
+                <label class="text-xs font-semibold text-text-subtle block mb-1">End / Due Date</label>
                 <input id="et-duedate" type="date" class="input-field" value="${task.dueDate || ''}" />
               </div>
+            </div>
 
               <div>
                 <label class="text-xs font-semibold text-text-subtle block mb-1">Schedule Source</label>
@@ -1000,6 +1061,8 @@ export function renderTasks(container) {
         title: document.getElementById('et-title').value,
         priority: document.getElementById('et-priority').value,
         category: document.getElementById('et-category').value,
+        taskType: document.getElementById('et-tasktype').value,
+        startDate: document.getElementById('et-startdate').value,
         dueDate: document.getElementById('et-duedate').value,
         sourceTag: document.getElementById('et-sourcetag').value,
         timeBlock: startTime && endTime ? { startTime, endTime } : null,

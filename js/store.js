@@ -231,17 +231,23 @@ class Store {
 
   // ------------ TASK & CALENDAR CRUD ------------
   addTask(task) {
+    const defaultDate = new Date().toISOString().split('T')[0];
+    const startDate = task.startDate || task.dueDate || defaultDate;
+    const dueDate = task.dueDate || startDate || defaultDate;
+
     const newTask = {
       id: 'task-' + Date.now(),
       title: task.title,
       priority: task.priority || 'medium',
       category: task.category || 'Personal',
-      dueDate: task.dueDate || new Date().toISOString().split('T')[0],
+      startDate: startDate,
+      dueDate: dueDate,
+      taskType: task.taskType || (startDate !== dueDate ? 'multi-day' : 'single'),
       timeBlock: task.timeBlock || null, // { startTime: '09:00', endTime: '10:00' }
       estimatedTime: task.estimatedTime || '', // e.g. "45 mins"
       sourceTag: task.sourceTag || 'Life OS', // "Life OS", "Power Planner", "Google Calendar", "Canvas"
       status: task.status || 'todo',
-      subtasks: task.subtasks || [],
+      subtasks: Array.isArray(task.subtasks) ? task.subtasks : [],
       repeating: task.repeating || 'none',
       tags: task.tags || [],
       notes: task.notes || ''
@@ -249,6 +255,38 @@ class Store {
     this.data.tasks.unshift(newTask);
     this.saveData();
     return newTask;
+  }
+
+  addSubtask(taskId, title) {
+    const task = this.data.tasks.find(t => t.id === taskId);
+    if (task) {
+      if (!Array.isArray(task.subtasks)) task.subtasks = [];
+      task.subtasks.push({
+        id: 'st-' + Date.now(),
+        title: title,
+        completed: false
+      });
+      this.saveData();
+    }
+  }
+
+  toggleSubtask(taskId, subtaskId) {
+    const task = this.data.tasks.find(t => t.id === taskId);
+    if (task && Array.isArray(task.subtasks)) {
+      const st = task.subtasks.find(s => s.id === subtaskId);
+      if (st) {
+        st.completed = !st.completed;
+        this.saveData();
+      }
+    }
+  }
+
+  deleteSubtask(taskId, subtaskId) {
+    const task = this.data.tasks.find(t => t.id === taskId);
+    if (task && Array.isArray(task.subtasks)) {
+      task.subtasks = task.subtasks.filter(s => s.id !== subtaskId);
+      this.saveData();
+    }
   }
 
   syncExternalSchedules() {
