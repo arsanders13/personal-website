@@ -29,17 +29,17 @@ export function initCalendarImportModal() {
           <!-- Import Methods -->
           <div class="space-y-4">
             
-            <!-- Method 1: Upload .ics File (Fastest & 100% Reliable) -->
+            <!-- Method 1: Upload .zip or .ics File (Fastest & 100% Reliable) -->
             <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
               <span class="text-xs font-bold text-amber-300 block flex items-center justify-between">
-                <span>📁 Method 1: Upload .ics File (Recommended & 100% Reliable)</span>
-                <span class="badge bg-emerald-500/20 text-emerald-400 text-[10px]">Instant</span>
+                <span>📁 Method 1: Upload .zip or .ics File (Recommended)</span>
+                <span class="badge bg-emerald-500/20 text-emerald-400 text-[10px]">Supports Google Export ZIP</span>
               </span>
               <p class="text-[11px] text-text-subtle">
-                Export your calendar file from <strong>Google Calendar</strong> or <strong>Power Planner</strong> and select it below:
+                Upload your downloaded <strong>Google Calendar export (.zip)</strong> or <strong>Power Planner (.ics)</strong> file below:
               </p>
 
-              <input type="file" id="ics-file-input" accept=".ics,.ical,.csv,.txt" class="input-field text-xs py-1.5 cursor-pointer bg-white/5" />
+              <input type="file" id="ics-file-input" accept=".zip,.ics,.ical,.csv,.txt" class="input-field text-xs py-1.5 cursor-pointer bg-white/5" />
             </div>
 
             <!-- Method 2: Paste iCal Secret URL -->
@@ -96,17 +96,48 @@ export function initCalendarImportModal() {
     document.getElementById('cal-import-close')?.addEventListener('click', () => modal.remove());
     modal?.addEventListener('click', (e) => { if (e.target.id === 'cal-import-modal') modal.remove(); });
 
-    // Handle Method 1: File Upload
-    document.getElementById('ics-file-input')?.addEventListener('change', (e) => {
+    // Handle Method 1: File Upload (.zip or .ics)
+    document.getElementById('ics-file-input')?.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target.result;
-        processICSText(text, file.name.toLowerCase().includes('power') ? 'Power Planner' : 'Google Calendar');
-      };
-      reader.readAsText(file);
+      showMsg('⏳ Extracting & reading calendar file...', false);
+
+      if (file.name.toLowerCase().endsWith('.zip')) {
+        try {
+          if (!window.JSZip) throw new Error('Zip extractor initializing. Please try selecting the file again.');
+          const zip = new window.JSZip();
+          const zipData = await zip.loadAsync(file);
+          let allEvents = [];
+
+          for (let filename in zipData.files) {
+            if (filename.toLowerCase().endsWith('.ics')) {
+              const icsText = await zipData.files[filename].async('text');
+              const sourceTag = filename.toLowerCase().includes('power') ? 'Power Planner' : 'Google Calendar';
+              const parsed = parseICSContent(icsText, sourceTag);
+              allEvents = allEvents.concat(parsed);
+            }
+          }
+
+          if (allEvents.length === 0) {
+            showMsg('No .ics calendar files found inside zip. Ensure it is your Google Calendar export .zip file.', true);
+            return;
+          }
+
+          const { addedCount, mergedCount } = store.importParsedCalendarEvents(allEvents);
+          showMsg(`🎉 Successfully imported ${addedCount} events from your Google Calendar ZIP (${mergedCount} duplicates merged)!`, false);
+          setTimeout(() => modal.remove(), 2000);
+        } catch (err) {
+          showMsg('Error reading ZIP file: ' + (err.message || 'Invalid zip file'), true);
+        }
+      } else {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target.result;
+          processICSText(text, file.name.toLowerCase().includes('power') ? 'Power Planner' : 'Google Calendar');
+        };
+        reader.readAsText(file);
+      }
     });
 
     // Handle Method 2: URL Import with multi-proxy fallback loop
