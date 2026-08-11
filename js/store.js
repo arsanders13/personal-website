@@ -414,6 +414,7 @@ class Store {
     if (!this.data.integrations) this.data.integrations = {};
     this.data.integrations.lastSynced = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     this.saveData();
+    this.notify();
     return { addedCount, mergedCount };
   }
 
@@ -423,22 +424,17 @@ class Store {
       this.data.integrations.lastSynced = null;
     }
     this.saveData();
+    this.notify();
   }
 
   unsyncAllExternalSchedules() {
     this.data.tasks = this.data.tasks.filter(t => {
       if (t.isExternal) return false;
-      if (t.id && t.id.startsWith('task-sync-')) return false;
+      if (t.id && (t.id.startsWith('task-sync-') || t.id.startsWith('task-import-'))) return false;
       if (t.sourceTag && (
         t.sourceTag.includes('Power Planner') || 
         t.sourceTag.includes('Google') || 
         t.sourceTag.includes('Canvas') ||
-        t.sourceTag.includes('Sync')
-      )) return false;
-      if (t.title && (
-        t.title.includes('CSE 2221:') ||
-        t.title.includes('MATH 1151:') ||
-        t.title.includes('ENGR 1181:') ||
         t.title.includes('Canvas HW:')
       )) return false;
       return true;
