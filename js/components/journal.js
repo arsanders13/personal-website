@@ -2,24 +2,53 @@ import { store } from '../store.js';
 
 export function renderJournal(container) {
   const { data } = store;
+  const hasPin = Boolean(data.journalPin);
+  const isUnlocked = !hasPin || store.isJournalUnlocked;
 
   function renderView() {
-    const journalEntries = data.journal;
+    if (!isUnlocked) {
+      renderLockScreen();
+      return;
+    }
+
+    const journalEntries = data.journal || [];
 
     container.innerHTML = `
       <div class="space-y-6 animate-fade-in">
         
         <!-- Controls Header -->
-        <div class="flex items-center justify-between glass-card p-4">
-          <div class="flex items-center gap-2">
-            <i data-lucide="feather" class="w-5 h-5 text-amber-400"></i>
-            <h2 class="font-bold text-base text-text">Daily Reflection Journal</h2>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between glass-card p-4 gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center">
+              <i data-lucide="feather" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 class="font-bold text-base text-text flex items-center gap-2">
+                <span>Daily Reflection Journal</span>
+                ${hasPin ? `<span class="badge bg-emerald-500/20 text-emerald-400 font-mono text-[10px] border border-emerald-500/30">🔓 PIN Protected</span>` : ''}
+              </h2>
+              <p class="text-xs text-text-subtle">Private daily thoughts, mood logs, and reflections.</p>
+            </div>
           </div>
 
-          <button id="add-journal-btn" class="btn btn-primary text-xs">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>New Daily Entry</span>
-          </button>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button id="set-pin-btn" class="btn btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5">
+              <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>${hasPin ? 'Change PIN' : 'Set 4-Digit PIN'}</span>
+            </button>
+
+            ${hasPin ? `
+              <button id="lock-now-btn" class="btn btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 text-amber-400 border-amber-500/30">
+                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                <span>Lock Now</span>
+              </button>
+            ` : ''}
+
+            <button id="add-journal-btn" class="btn btn-primary text-xs py-1.5 px-3">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>New Daily Entry</span>
+            </button>
+          </div>
         </div>
 
         <!-- Journal Entries Timeline -->
@@ -35,6 +64,56 @@ export function renderJournal(container) {
     `;
 
     attachEvents();
+  }
+
+  function renderLockScreen() {
+    container.innerHTML = `
+      <div class="min-h-[70vh] flex items-center justify-center p-4 animate-fade-in">
+        <div class="glass-card w-full max-w-md p-8 text-center space-y-6 border-amber-500/30 shadow-2xl">
+          <div class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/20">
+            <i data-lucide="lock" class="w-8 h-8"></i>
+          </div>
+
+          <div class="space-y-2">
+            <h2 class="text-xl font-extrabold text-text">Private Journal Locked</h2>
+            <p class="text-xs text-text-subtle">Enter your 4-digit security PIN to access your daily reflections.</p>
+          </div>
+
+          <form id="unlock-form" class="space-y-4">
+            <div class="flex justify-center">
+              <input 
+                id="pin-input" 
+                type="password" 
+                maxlength="8" 
+                placeholder="••••" 
+                class="input-field text-center text-2xl font-mono tracking-widest w-40 py-2" 
+                required 
+                autofocus 
+              />
+            </div>
+
+            <div id="pin-error-msg" class="text-xs text-danger font-medium hidden">Incorrect PIN. Please try again.</div>
+
+            <button type="submit" class="btn btn-primary w-full text-xs py-2.5 flex items-center justify-center gap-2">
+              <i data-lucide="unlock" class="w-4 h-4"></i>
+              <span>Unlock Journal</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+
+    document.getElementById('unlock-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pin = document.getElementById('pin-input').value;
+      const success = store.unlockJournal(pin);
+      if (!success) {
+        const errEl = document.getElementById('pin-error-msg');
+        if (errEl) errEl.classList.remove('hidden');
+      }
+    });
   }
 
   function renderEntryCard(entry) {
@@ -104,6 +183,22 @@ export function renderJournal(container) {
 
   function attachEvents() {
     container.querySelector('#add-journal-btn')?.addEventListener('click', openAddJournalModal);
+
+    container.querySelector('#set-pin-btn')?.addEventListener('click', () => {
+      const currentPin = data.journalPin;
+      const promptMsg = currentPin
+        ? 'Enter a new 4-digit PIN (or leave blank to remove PIN protection):'
+        : 'Set a 4-digit security PIN for your private journal:';
+      const newPin = prompt(promptMsg, currentPin || '');
+      if (newPin !== null) {
+        store.setJournalPin(newPin);
+      }
+    });
+
+    container.querySelector('#lock-now-btn')?.addEventListener('click', () => {
+      store.lockJournal();
+    });
+
     if (window.lucide) window.lucide.createIcons();
   }
 

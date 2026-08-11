@@ -1223,6 +1223,31 @@ class Store {
   }
 
   // ------------ JOURNAL ------------
+  setJournalPin(pin) {
+    if (pin && pin.trim()) {
+      this.data.journalPin = pin.trim();
+      this.isJournalUnlocked = true;
+    } else {
+      delete this.data.journalPin;
+      this.isJournalUnlocked = false;
+    }
+    this.saveData();
+  }
+
+  unlockJournal(pin) {
+    if (pin && this.data.journalPin && pin.trim() === this.data.journalPin) {
+      this.isJournalUnlocked = true;
+      this.notify();
+      return true;
+    }
+    return false;
+  }
+
+  lockJournal() {
+    this.isJournalUnlocked = false;
+    this.notify();
+  }
+
   addJournalEntry(entry) {
     const newEntry = {
       id: 'j-' + Date.now(),
