@@ -361,89 +361,26 @@ class Store {
       powerPlanner: true,
       googleCalendar: true,
       canvas: true,
-      lastSynced: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     this.saveData();
   }
 
-  importParsedCalendarEvents(events) {
-    let addedCount = 0;
-    let mergedCount = 0;
-
-    events.forEach(newEvent => {
-      const normTitle = (newEvent.title || '').toLowerCase().trim();
-      const date = newEvent.dueDate || new Date().toISOString().split('T')[0];
-      const startT = newEvent.startTime;
-
-      // Smart AI Deduplication Check
-      const duplicate = this.data.tasks.find(t => {
-        const existingTitle = (t.title || '').toLowerCase().trim();
-        const sameDate = t.dueDate === date;
-        const sameTitle = existingTitle.includes(normTitle) || normTitle.includes(existingTitle);
-        const sameTime = t.timeBlock && startT && t.timeBlock.startTime === startT;
-        return sameDate && (sameTitle || sameTime);
-      });
-
-      if (duplicate) {
-        if (newEvent.sourceTag && !duplicate.sourceTag.includes(newEvent.sourceTag)) {
-          duplicate.sourceTag = `${duplicate.sourceTag} + ${newEvent.sourceTag}`;
-        }
-        if (newEvent.notes && !duplicate.notes?.includes(newEvent.notes)) {
-          duplicate.notes = `${duplicate.notes || ''} | ${newEvent.notes}`.trim();
-        }
-        mergedCount++;
-      } else {
-        this.data.tasks.unshift({
-          id: 'task-import-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-          title: newEvent.title,
-          priority: 'medium',
-          category: 'School (non-hw)',
-          dueDate: date,
-          startDate: date,
-          timeBlock: newEvent.startTime && newEvent.endTime ? { startTime: newEvent.startTime, endTime: newEvent.endTime } : null,
-          sourceTag: newEvent.sourceTag || 'Google Calendar',
-          status: 'todo',
-          subtasks: [],
-          notes: newEvent.notes || ''
-        });
-        addedCount++;
-      }
-    });
-
-    if (!this.data.integrations) this.data.integrations = {};
-    this.data.integrations.lastSynced = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    this.saveData();
-    this.notify();
-    return { addedCount, mergedCount };
-  }
-
-  clearAllTasks() {
-    this.data.tasks = [];
-    if (this.data.integrations) {
-      this.data.integrations.lastSynced = null;
-    }
-    this.saveData();
-    this.notify();
-  }
-
-  clearAllSyncedDemoClasses() {
-    this.data.tasks = [];
-    if (this.data.integrations) {
-      this.data.integrations.lastSynced = null;
-    }
-    this.saveData();
-    this.notify();
-  }
-
   unsyncAllExternalSchedules() {
     this.data.tasks = this.data.tasks.filter(t => {
       if (t.isExternal) return false;
-      if (t.id && (t.id.startsWith('task-sync-') || t.id.startsWith('task-import-'))) return false;
+      if (t.id && t.id.startsWith('task-sync-')) return false;
       if (t.sourceTag && (
         t.sourceTag.includes('Power Planner') || 
         t.sourceTag.includes('Google') || 
         t.sourceTag.includes('Canvas') ||
+        t.sourceTag.includes('Sync')
+      )) return false;
+      if (t.title && (
+        t.title.includes('CSE 2221:') ||
+        t.title.includes('MATH 1151:') ||
+        t.title.includes('ENGR 1181:') ||
         t.title.includes('Canvas HW:')
       )) return false;
       return true;

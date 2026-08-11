@@ -1,43 +1,42 @@
 import { store } from '../store.js';
 
 export function renderTasks(container) {
-  try {
-    const { data } = store;
-    let currentView = 'list'; // 'list' | 'kanban' | 'calendar' | 'timeblock'
-    let selectedCategory = 'All';
-    let selectedPriority = 'All';
-    let searchQuery = '';
-    
-    // Dynamic Real-Time Date Initialization
-    const realNow = new Date();
-    let activeYear = realNow.getFullYear();
-    let activeMonth = realNow.getMonth(); // 0-indexed
-    let activeDay = realNow.getDate();
+  const { data } = store;
+  let currentView = 'list'; // 'list' | 'kanban' | 'calendar' | 'timeblock'
+  let selectedCategory = 'All';
+  let selectedPriority = 'All';
+  let searchQuery = '';
+  
+  // Dynamic Real-Time Date Initialization (Defaults to actual today: July 29, 2026)
+  const realNow = new Date();
+  let activeYear = realNow.getFullYear();
+  let activeMonth = realNow.getMonth(); // 0-indexed (6 = July)
+  let activeDay = realNow.getDate(); // 29
 
-    // Pomodoro Focus Timer State
-    let focusTask = null;
-    let focusSeconds = 1500; // 25 mins
-    let focusTimerId = null;
+  // Pomodoro Focus Timer State
+  let focusTask = null;
+  let focusSeconds = 1500; // 25 mins
+  let focusTimerId = null;
 
-    function renderView() {
-      let filteredTasks = (Array.isArray(data.tasks) ? data.tasks : []).filter(t => t && typeof t === 'object' && t.id);
+  function renderView() {
+    let filteredTasks = data.tasks;
 
-      if (selectedCategory !== 'All') {
-        filteredTasks = filteredTasks.filter(t => t && t.category === selectedCategory);
-      }
-      if (selectedPriority !== 'All') {
-        filteredTasks = filteredTasks.filter(t => t && t.priority === selectedPriority);
-      }
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        filteredTasks = filteredTasks.filter(t => t && t.title && (t.title.toLowerCase().includes(q) || (t.notes && t.notes.toLowerCase().includes(q))));
-      }
+    if (selectedCategory !== 'All') {
+      filteredTasks = filteredTasks.filter(t => t.category === selectedCategory);
+    }
+    if (selectedPriority !== 'All') {
+      filteredTasks = filteredTasks.filter(t => t.priority === selectedPriority);
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filteredTasks = filteredTasks.filter(t => t.title.toLowerCase().includes(q) || (t.notes && t.notes.toLowerCase().includes(q)));
+    }
 
-      const categories = ['All', 'Personal', 'Errands', 'Career', 'School (non-hw)', 'Clubs', 'Health', 'Shopping'];
-      const priorities = ['All', 'urgent', 'high', 'medium', 'low'];
-      const integrations = data.integrations || { powerPlanner: false, googleCalendar: false, canvas: false, lastSynced: null };
+    const categories = ['All', 'Personal', 'Errands', 'Career', 'School (non-hw)', 'Clubs', 'Health', 'Shopping'];
+    const priorities = ['All', 'urgent', 'high', 'medium', 'low'];
+    const integrations = data.integrations || { powerPlanner: false, googleCalendar: false, canvas: false, lastSynced: null };
 
-      const quickCaptureItems = data.quickCapture || [];
+    const quickCaptureItems = data.quickCapture || [];
 
     container.innerHTML = `
       <div class="space-y-6 animate-fade-in pb-12">
@@ -99,21 +98,21 @@ export function renderTasks(container) {
                 </div>
                 <div>
                   <h3 class="font-bold text-base text-text flex items-center gap-2">
-                    <span>OSU Schedule & Course Controls</span>
+                    <span>OSU Schedule & Calendar Controls</span>
                   </h3>
-                  <p class="text-xs text-text-subtle">Click "Clear Demo Data" to remove sample classes, or add your real Power Planner & Google Calendar schedule.</p>
+                  <p class="text-xs text-text-subtle">Toggle individual calendar feeds, sync external schedules, or unsync completely.</p>
                 </div>
               </div>
 
               <div class="flex items-center gap-2 flex-wrap">
-                <button id="open-cal-import-btn" class="btn btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5 shadow-lg shadow-amber-500/20" title="Import real Google Calendar or Power Planner .ics file or iCal secret link">
-                  <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
-                  <span>Sync Real iCal / .ics File</span>
+                <button id="sync-schedule-btn" class="btn btn-primary text-xs py-1.5 px-3">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>${integrations.lastSynced ? `Synced (${integrations.lastSynced})` : 'Sync Sample Feeds'}</span>
                 </button>
 
-                <button id="wipe-all-tasks-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Wipe all tasks and reset task list">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                  <span>Wipe ALL Tasks</span>
+                <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all synced external calendar items">
+                  <i data-lucide="power" class="w-3.5 h-3.5"></i>
+                  <span>Unsync & Clear All</span>
                 </button>
 
                 <button id="hide-sync-banner-btn" class="btn btn-ghost btn-icon text-xs text-text-subtle" title="Hide calendar controls box">
@@ -122,27 +121,26 @@ export function renderTasks(container) {
               </div>
             </div>
 
-            <!-- Feed Toggles & Real Schedule Setup -->
-            <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-border/50 text-xs">
-              <div class="flex items-center gap-3">
-                <span class="text-text-subtle font-semibold">Calendar Sources:</span>
-                
-                <label class="flex items-center gap-1.5 cursor-pointer">
-                  <input type="checkbox" id="toggle-pp" ${integrations.powerPlanner ? 'checked' : ''} class="rounded text-accent" />
-                  <span class="text-text font-medium">Power Planner</span>
-                </label>
+          <!-- Individual Feed Toggles -->
+          <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50 text-xs">
+            <span class="text-text-subtle font-semibold">Calendar Feeds:</span>
+            
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="toggle-pp" ${integrations.powerPlanner ? 'checked' : ''} class="rounded text-accent" />
+              <span class="text-text font-medium">Power Planner</span>
+            </label>
 
-                <label class="flex items-center gap-1.5 cursor-pointer">
-                  <input type="checkbox" id="toggle-gcal" ${integrations.googleCalendar ? 'checked' : ''} class="rounded text-accent" />
-                  <span class="text-text font-medium">Google Calendar</span>
-                </label>
-              </div>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="toggle-gcal" ${integrations.googleCalendar ? 'checked' : ''} class="rounded text-accent" />
+              <span class="text-text font-medium">Google Calendar</span>
+            </label>
 
-              <span class="text-[11px] text-text-subtle">
-                💡 Tip: Click <strong>"New Task"</strong> to enter your real class times & rooms!
-              </span>
-            </div>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="toggle-canvas" ${integrations.canvas ? 'checked' : ''} class="rounded text-accent" />
+              <span class="text-text font-medium">Canvas LMS</span>
+            </label>
           </div>
+        </div>
         ` : ''}
 
         <!-- Active Focus Pomodoro Bar (if running) -->
@@ -617,13 +615,13 @@ export function renderTasks(container) {
     });
 
     // External Schedule Sync & Unsync Controls
-    container.querySelector('#open-cal-import-btn')?.addEventListener('click', () => {
-      window.dispatchEvent(new CustomEvent('open-calendar-import-modal'));
+    container.querySelector('#sync-schedule-btn')?.addEventListener('click', () => {
+      store.syncExternalSchedules();
+      renderView();
     });
-    container.querySelector('#wipe-all-tasks-btn')?.addEventListener('click', () => {
-      if (confirm('Wipe all tasks and calendar items from your screen?')) {
-        store.clearAllTasks();
-      }
+    container.querySelector('#unsync-schedule-btn')?.addEventListener('click', () => {
+      store.unsyncAllExternalSchedules();
+      renderView();
     });
     container.querySelector('#hide-sync-banner-btn')?.addEventListener('click', () => {
       store.data.hideSyncBanner = true;
@@ -1086,19 +1084,4 @@ export function renderTasks(container) {
       renderView();
     }
   });
-  } catch (err) {
-    console.error('Task view render error:', err);
-    container.innerHTML = `
-      <div class="glass-card p-8 text-center space-y-4 max-w-md mx-auto my-12">
-        <div class="w-12 h-12 rounded-full bg-danger/20 text-danger flex items-center justify-center mx-auto">
-          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-        </div>
-        <h3 class="font-bold text-base text-text">Tasks View Recovery</h3>
-        <p class="text-xs text-text-subtle">A task item had missing properties. Click below to reset your task list safely.</p>
-        <button onclick="localStorage.removeItem('life_os_data'); window.location.reload();" class="btn btn-primary text-xs py-2 px-4">
-          <span>Reset Task Data & Reload</span>
-        </button>
-      </div>
-    `;
-  }
 }
