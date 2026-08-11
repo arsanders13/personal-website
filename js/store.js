@@ -141,6 +141,8 @@ class Store {
         if (!parsed.tasks || !parsed.tasks.some(t => t.id === 'task-lolla')) {
           parsed.tasks = JSON.parse(JSON.stringify(SEED_DATA.tasks));
         }
+        // Filter out legacy sample demo sync tasks so unlinked feeds show 0 items by default
+        parsed.tasks = parsed.tasks.filter(t => !t.id.startsWith('task-sync-') && !t.id.startsWith('task-import-'));
         if (!parsed.goals || !parsed.goals.some(g => g.id === 'goal-internship-2027')) {
           parsed.goals = JSON.parse(JSON.stringify(SEED_DATA.goals));
         }
