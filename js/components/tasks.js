@@ -97,60 +97,71 @@ export function renderTasks(container) {
           </div>
         ` : ''}
 
-        <!-- Schedule Integration & Sync Hub Banner -->
-        ${!data.hideSyncBanner ? `
-          <div class="glass-card p-5 bg-gradient-to-r from-amber-500/10 via-bg-card to-indigo-950/20 border-amber-500/30 space-y-3">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold">
-                  <i data-lucide="calendar" class="w-5 h-5"></i>
-                </div>
-                <div>
-                  <h3 class="font-bold text-base text-text flex items-center gap-2">
-                    <span>OSU Schedule & Calendar Controls</span>
-                  </h3>
-                  <p class="text-xs text-text-subtle">Toggle individual calendar feeds, sync external schedules, or unsync completely.</p>
-                </div>
+        <!-- Schedule Integration & Sync Hub Banner (Always Visible) -->
+        <div class="glass-card p-5 bg-gradient-to-r from-amber-500/10 via-bg-card to-indigo-950/20 border-amber-500/30 space-y-3">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
               </div>
-
-              <div class="flex items-center gap-2 flex-wrap">
-                <button id="sync-schedule-btn" class="btn btn-primary text-xs py-1.5 px-3">
-                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                  <span>${integrations.lastSynced ? `Synced (${integrations.lastSynced})` : 'Sync Sample Feeds'}</span>
-                </button>
-
-                <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove all synced external calendar items">
-                  <i data-lucide="power" class="w-3.5 h-3.5"></i>
-                  <span>Unsync & Clear All</span>
-                </button>
-
-                <button id="hide-sync-banner-btn" class="btn btn-ghost btn-icon text-xs text-text-subtle" title="Hide calendar controls box">
-                  <i data-lucide="eye-off" class="w-4 h-4"></i>
-                </button>
+              <div>
+                <h3 class="font-bold text-base text-text flex items-center gap-2">
+                  <span>OSU Schedule & Calendar Visibility Feeds</span>
+                </h3>
+                <p class="text-xs text-text-subtle">Check/uncheck feeds to toggle visibility of your classes and events on your schedule.</p>
               </div>
             </div>
 
-          <!-- Individual Feed Toggles -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <button id="add-class-schedule-btn" class="btn btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5 shadow-lg shadow-amber-500/20" title="Add a class or schedule item for Power Planner or Google Calendar">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                <span>+ Add Class / Schedule Item</span>
+              </button>
+
+              <button id="sync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3" title="Load sample demo classes for testing">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>Load Sample Demo Schedule</span>
+              </button>
+
+              <button id="unsync-schedule-btn" class="btn btn-secondary text-xs py-1.5 px-3 text-danger border-danger/30 hover:bg-danger/10" title="Remove sample demo classes">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                <span>Clear Demo Schedule</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Individual Feed Toggles & Live Item Counts -->
           <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50 text-xs">
-            <span class="text-text-subtle font-semibold">Calendar Feeds:</span>
+            <span class="text-text-subtle font-semibold">Active Calendar Feeds:</span>
             
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="toggle-pp" ${integrations.powerPlanner ? 'checked' : ''} class="rounded text-accent" />
-              <span class="text-text font-medium">Power Planner</span>
-            </label>
+            ${(() => {
+              const allTasks = data.tasks || [];
+              const ppCount = allTasks.filter(t => t.sourceTag && t.sourceTag.includes('Power Planner')).length;
+              const gcalCount = allTasks.filter(t => t.sourceTag && t.sourceTag.includes('Google')).length;
+              const canvasCount = allTasks.filter(t => t.sourceTag && t.sourceTag.includes('Canvas')).length;
 
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="toggle-gcal" ${integrations.googleCalendar ? 'checked' : ''} class="rounded text-accent" />
-              <span class="text-text font-medium">Google Calendar</span>
-            </label>
+              return `
+                <label class="flex items-center gap-1.5 cursor-pointer bg-white/5 px-2.5 py-1 rounded-xl border border-border">
+                  <input type="checkbox" id="toggle-pp" ${integrations.powerPlanner ? 'checked' : ''} class="rounded text-accent" />
+                  <span class="text-text font-medium">Power Planner</span>
+                  <span class="badge ${ppCount > 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-text-subtle'} text-[10px] font-mono">${ppCount} items</span>
+                </label>
 
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="toggle-canvas" ${integrations.canvas ? 'checked' : ''} class="rounded text-accent" />
-              <span class="text-text font-medium">Canvas LMS</span>
-            </label>
+                <label class="flex items-center gap-1.5 cursor-pointer bg-white/5 px-2.5 py-1 rounded-xl border border-border">
+                  <input type="checkbox" id="toggle-gcal" ${integrations.googleCalendar ? 'checked' : ''} class="rounded text-accent" />
+                  <span class="text-text font-medium">Google Calendar</span>
+                  <span class="badge ${gcalCount > 0 ? 'bg-cyan-500/20 text-cyan-400' : 'bg-white/10 text-text-subtle'} text-[10px] font-mono">${gcalCount} items</span>
+                </label>
+
+                <label class="flex items-center gap-1.5 cursor-pointer bg-white/5 px-2.5 py-1 rounded-xl border border-border">
+                  <input type="checkbox" id="toggle-canvas" ${integrations.canvas ? 'checked' : ''} class="rounded text-accent" />
+                  <span class="text-text font-medium">Canvas LMS</span>
+                  <span class="badge ${canvasCount > 0 ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-text-subtle'} text-[10px] font-mono">${canvasCount} items</span>
+                </label>
+              `;
+            })()}
           </div>
         </div>
-        ` : ''}
 
         <!-- Active Focus Pomodoro Bar (if running) -->
         ${focusTask ? `
@@ -623,18 +634,16 @@ export function renderTasks(container) {
       });
     });
 
-    // External Schedule Sync & Unsync Controls
+    // External Schedule Sync & Controls
+    container.querySelector('#add-class-schedule-btn')?.addEventListener('click', () => {
+      openAddTaskModal();
+    });
     container.querySelector('#sync-schedule-btn')?.addEventListener('click', () => {
       store.syncExternalSchedules();
       renderView();
     });
     container.querySelector('#unsync-schedule-btn')?.addEventListener('click', () => {
       store.unsyncAllExternalSchedules();
-      renderView();
-    });
-    container.querySelector('#hide-sync-banner-btn')?.addEventListener('click', () => {
-      store.data.hideSyncBanner = true;
-      store.saveData();
       renderView();
     });
 
