@@ -60,6 +60,126 @@ export const SEED_DATA = {
       status: 'todo',
       subtasks: [],
       notes: 'Review Depop side project items.'
+    },
+    {
+      id: 'evt-in-too-deep',
+      title: '🌊 In Too Deep Party (Ques)',
+      priority: 'medium',
+      category: 'Clubs',
+      dueDate: '2026-08-20',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 3:00 PM - 8:00 PM | Hosted by Ques'
+    },
+    {
+      id: 'evt-adult-swim',
+      title: '🏊 Adult Swim (Nupes - Invite Only)',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-21',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 3:00 PM - 8:00 PM | Hosted by Nupes | Invite Only'
+    },
+    {
+      id: 'evt-pregame',
+      title: '🍻 Pregame (Nupes)',
+      priority: 'medium',
+      category: 'Personal',
+      dueDate: '2026-08-21',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 7:00 PM - 10:00 PM | Hosted by Nupes'
+    },
+    {
+      id: 'evt-summer-never-ends',
+      title: '🎤 Summer Never Ends (21+ @ Skullys)',
+      priority: 'medium',
+      category: 'Personal',
+      dueDate: '2026-08-21',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 10:00 PM - 2:00 AM | Location: Skullys Music Diner | 21+'
+    },
+    {
+      id: 'evt-welcome-backk',
+      title: '🎉 Welcome Backk Party @ Nupe House',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-21',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 10:00 PM - 2:00 AM | Location: Nupe House | Girls: Free'
+    },
+    {
+      id: 'evt-cookowt',
+      title: '🍗 CookOwt @ Hale Hall (Ques)',
+      priority: 'medium',
+      category: 'Clubs',
+      dueDate: '2026-08-22',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 3:00 PM - 8:00 PM | Location: Hale Hall | Hosted by Ques'
+    },
+    {
+      id: 'evt-blue-ice-party',
+      title: '❄️ Blue Ice Party (Alphas & Sigmas)',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-22',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 10:00 PM - 2:00 AM | Hosted by Alphas & Sigmas | Girls: Free'
+    },
+    {
+      id: 'evt-nphc-yard-show',
+      title: '🎭 NPHC Yard Show & Family Affair (Free)',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-28',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 5:00 PM - 10:00 PM | Free Admission'
+    },
+    {
+      id: 'evt-wbw',
+      title: '🌙 WBW Event',
+      priority: 'medium',
+      category: 'Personal',
+      dueDate: '2026-08-28',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 10:00 PM - 2:00 AM'
+    },
+    {
+      id: 'evt-juiced-up',
+      title: '🧃 Juiced Up Party (Free First 30 Mins)',
+      priority: 'medium',
+      category: 'Personal',
+      dueDate: '2026-08-28',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 10:30 PM - Late | Free for the first 30 minutes'
+    },
+    {
+      id: 'evt-bosu-30-meetup',
+      title: '🤝 B’OSU ‘30 Meetup @ D9 Plaza (Free)',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-29',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 6:00 PM - 8:00 PM | Location: D9 Plaza | Free'
+    },
+    {
+      id: 'evt-annual-african-mixer',
+      title: '🌍 Annual African Mixer @ RPAC (Free)',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-29',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 5:00 PM - 8:00 PM | Location: RPAC | Free'
     }
   ],
   projects: [

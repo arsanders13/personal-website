@@ -143,6 +143,13 @@ class Store {
         }
         // Filter out legacy sample demo sync tasks so unlinked feeds show 0 items by default
         parsed.tasks = parsed.tasks.filter(t => !t.id.startsWith('task-sync-') && !t.id.startsWith('task-import-'));
+
+        // Merge newly added campus events into active tasks if not present
+        SEED_DATA.tasks.forEach(seedTask => {
+          if (!parsed.tasks.some(t => t.id === seedTask.id || t.title === seedTask.title)) {
+            parsed.tasks.push(seedTask);
+          }
+        });
         if (!parsed.goals || !parsed.goals.some(g => g.id === 'goal-internship-2027')) {
           parsed.goals = JSON.parse(JSON.stringify(SEED_DATA.goals));
         }
