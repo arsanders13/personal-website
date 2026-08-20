@@ -20,11 +20,20 @@ export function renderTasks(container) {
       const todayStr = new Date().toISOString().split('T')[0];
       let filteredTasks = (Array.isArray(data.tasks) ? data.tasks : []).filter(t => t && typeof t === 'object' && t.id);
 
+      // Sort all tasks & events strictly in chronological order by date
+      filteredTasks.sort((a, b) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return a.dueDate.localeCompare(b.dueDate);
+      });
+
       // Quick Filter Tabs Logic
       if (activeQuickFilter === 'today') {
         filteredTasks = filteredTasks.filter(t => t.dueDate === todayStr && t.status !== 'done');
       } else if (activeQuickFilter === 'upcoming') {
         filteredTasks = filteredTasks.filter(t => t.dueDate && t.dueDate > todayStr && t.status !== 'done');
+      } else if (activeQuickFilter === 'events') {
+        filteredTasks = filteredTasks.filter(t => t.sourceTag === 'Campus Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs');
       } else if (activeQuickFilter === 'overdue') {
         filteredTasks = filteredTasks.filter(t => t.dueDate && t.dueDate < todayStr && t.status !== 'done');
       } else if (activeQuickFilter === 'high') {
@@ -62,15 +71,15 @@ export function renderTasks(container) {
           <div class="flex flex-col sm:flex-row sm:items-center justify-between glass-card p-6 gap-4 bg-gradient-to-r from-amber-500/10 via-bg-card to-indigo-950/20 border-amber-500/20">
             <div class="space-y-1">
               <h2 class="text-xl font-extrabold text-text flex items-center gap-2">
-                <span>Tasks & Action Items</span>
-                <span class="badge bg-amber-500/20 text-amber-700 dark:text-amber-300 font-mono text-xs">${filteredTasks.length} tasks</span>
+                <span>Tasks & Campus Events Schedule</span>
+                <span class="badge bg-amber-500/20 text-amber-700 dark:text-amber-300 font-mono text-xs">${filteredTasks.length} items</span>
               </h2>
-              <p class="text-xs text-text-subtle">"What do I need to take care of?" — Focused action items tied to your Goals & Projects.</p>
+              <p class="text-xs text-text-subtle">Chronologically ordered campus events, parties, meetups, and action items.</p>
             </div>
 
             <button id="add-task-btn" class="btn btn-primary text-xs py-2 px-4 shadow-lg shadow-amber-500/20">
               <i data-lucide="plus" class="w-4 h-4"></i>
-              <span>+ New Task</span>
+              <span>+ New Event / Task</span>
             </button>
           </div>
 
@@ -122,7 +131,11 @@ export function renderTasks(container) {
             
             <!-- Quick Filter Tabs -->
             <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none">
-              <button data-filter-tab="all" class="btn ${activeQuickFilter === 'all' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs">All Tasks</button>
+              <button data-filter-tab="all" class="btn ${activeQuickFilter === 'all' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs">All Items (In Order)</button>
+              <button data-filter-tab="events" class="btn ${activeQuickFilter === 'events' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
+                <span>🎉 Campus Events</span>
+                <span class="badge bg-amber-500/20 text-amber-300 text-[10px] font-bold">${(data.tasks || []).filter(t => t.sourceTag === 'Campus Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs').length}</span>
+              </button>
               <button data-filter-tab="today" class="btn ${activeQuickFilter === 'today' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
                 <span>Today</span>
                 <span class="badge bg-white/20 text-[10px]">${(data.tasks || []).filter(t => t.dueDate === todayStr && t.status !== 'done').length}</span>

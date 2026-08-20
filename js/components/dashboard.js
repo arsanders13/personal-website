@@ -10,13 +10,14 @@ export function renderDashboard(container) {
   const stickyNote = data.stickyNote || '🎯 Set your top priorities for this week!';
 
   const todayStr = new Date().toISOString().split('T')[0];
-  const activeFocusTasks = tasks.filter(t => {
-    if (t.status === 'done') return false;
-    const isOverdue = t.dueDate && t.dueDate < todayStr;
-    const isToday = t.dueDate === todayStr;
-    const isHighPriority = t.priority === 'high' || t.priority === 'urgent';
-    return isOverdue || isToday || isHighPriority;
-  }).slice(0, 5);
+  const upcomingEventsList = tasks
+    .filter(t => t.status !== 'done')
+    .sort((a, b) => {
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return a.dueDate.localeCompare(b.dueDate);
+    })
+    .slice(0, 10);
   const activeGoalsList = goals.slice(0, 3);
   const recentProjectsList = projects.slice(0, 3);
   const pinnedResources = resources.filter(r => r.isPinned).slice(0, 6);
@@ -184,32 +185,34 @@ export function renderDashboard(container) {
         <!-- Left 2 Columns: Priority Action Items & Projects -->
         <div class="lg:col-span-2 space-y-8">
           
-          <!-- Today's Tasks & Priority Focus Widget -->
+          <!-- Upcoming Campus Events & Schedule Widget (In Order) -->
           <div class="glass-card p-6 space-y-4">
             <div class="flex items-center justify-between pb-2 border-b border-border">
               <h3 class="font-bold text-base text-text flex items-center gap-2">
-                <span>⚡ Today's Priority Action Items</span>
+                <span>🎉 Upcoming Campus Events & Schedule (In Order)</span>
               </h3>
-              <button id="go-tasks-btn" class="btn btn-ghost text-xs text-accent font-bold">View All Tasks →</button>
+              <button id="go-tasks-btn" class="btn btn-ghost text-xs text-accent font-bold">View All Events →</button>
             </div>
 
-            ${activeFocusTasks.length === 0 ? `
-              <p class="text-xs text-text-subtle py-6 text-center">No pending priority tasks. You're all caught up!</p>
+            ${upcomingEventsList.length === 0 ? `
+              <p class="text-xs text-text-subtle py-6 text-center">No upcoming campus events right now.</p>
             ` : `
               <div class="space-y-2">
-                ${activeFocusTasks.map(t => `
-                  <div class="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-border text-xs">
+                ${upcomingEventsList.map(t => `
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-border text-xs hover:border-amber-500/40 transition-all">
                     <div 
                       data-dash-toggle-task="${t.id}"
                       class="flex items-center gap-3 cursor-pointer min-w-0 flex-1"
                     >
                       <input type="checkbox" ${t.status === 'done' ? 'checked' : ''} class="w-4 h-4 rounded text-accent cursor-pointer" readonly />
-                      <span class="font-medium text-text truncate">${t.title}</span>
-                      <span class="badge badge-${t.priority}">${t.priority}</span>
-                      ${t.sourceTag ? `<span class="badge text-[9px] bg-amber-500/15 text-amber-700 dark:text-amber-300 font-mono">${t.sourceTag}</span>` : ''}
-                      ${t.timeBlock ? `<span class="text-[10px] text-accent font-mono">⏰ ${t.timeBlock.startTime}</span>` : ''}
+                      <div class="min-w-0 flex-1">
+                        <div class="font-bold text-text truncate">${t.title}</div>
+                        ${t.notes ? `<div class="text-[11px] text-text-subtle truncate">${t.notes}</div>` : ''}
+                      </div>
                     </div>
-                    <span class="text-[10px] font-mono text-text-subtle">${t.dueDate || ''}</span>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                      <span class="badge text-[10px] bg-amber-500/15 text-amber-700 dark:text-amber-300 font-mono font-bold">${t.dueDate ? `📅 ${t.dueDate.split('-').slice(1).join('/')}` : ''}</span>
+                    </div>
                   </div>
                 `).join('')}
               </div>
