@@ -180,6 +180,26 @@ export const SEED_DATA = {
       sourceTag: 'Campus Events',
       status: 'todo',
       notes: '⏰ 5:00 PM - 8:00 PM | Location: RPAC | Free'
+    },
+    {
+      id: 'evt-scholars-ice-cream-social',
+      title: '🍦 All Scholars Ice Cream Social @ Kuhn House',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-28',
+      sourceTag: 'OSU Honors',
+      status: 'todo',
+      notes: 'Location: Kuhn House Back Patio | Mix, mingle & sweet treats with fellow Scholars. RSVP for updates!'
+    },
+    {
+      id: 'evt-oae-open-house',
+      title: '🔬 OAE Open House (Undergrad Research & Fellowships)',
+      priority: 'high',
+      category: 'Career',
+      dueDate: '2026-09-15',
+      sourceTag: 'OSU Honors',
+      status: 'todo',
+      notes: '⏰ 4:00 PM - 6:00 PM | Location: Kuhn Honors & Scholars House (220 W 12th Ave) | Explore Undergrad Research, Fellowships & Service Learning!'
     }
   ],
   projects: [
