@@ -106,6 +106,12 @@ class Store {
     }
     if (!parsed.tasks || !Array.isArray(parsed.tasks)) {
       parsed.tasks = JSON.parse(JSON.stringify(SEED_DATA.tasks));
+    } else {
+      SEED_DATA.tasks.forEach(seedTask => {
+        if (!parsed.tasks.some(t => t.id === seedTask.id || t.title === seedTask.title)) {
+          parsed.tasks.unshift(seedTask);
+        }
+      });
     }
     if (!parsed.goals || !Array.isArray(parsed.goals)) {
       parsed.goals = JSON.parse(JSON.stringify(SEED_DATA.goals));
