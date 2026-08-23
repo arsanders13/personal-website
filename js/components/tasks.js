@@ -77,10 +77,17 @@ export function renderTasks(container) {
               <p class="text-xs text-text-subtle">Chronologically ordered campus events, parties, meetups, and action items.</p>
             </div>
 
-            <button id="add-task-btn" class="btn btn-primary text-xs py-2 px-4 shadow-lg shadow-amber-500/20">
-              <i data-lucide="plus" class="w-4 h-4"></i>
-              <span>+ New Event / Task</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <a href="assets/osu_campus_events.ics" download="osu_campus_events.ics" class="btn btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10" title="Export all 14 campus events to Apple Calendar / Google Calendar">
+                <i data-lucide="calendar-plus" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span>📅 Export All to Apple / Google Cal</span>
+              </a>
+
+              <button id="add-task-btn" class="btn btn-primary text-xs py-2 px-4 shadow-lg shadow-amber-500/20">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>+ New Event / Task</span>
+              </button>
+            </div>
           </div>
 
           <!-- Quick Capture Notes Inbox (if items exist) -->
