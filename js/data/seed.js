@@ -200,6 +200,56 @@ export const SEED_DATA = {
       sourceTag: 'OSU Honors',
       status: 'todo',
       notes: '⏰ 4:00 PM - 6:00 PM | Location: Kuhn Honors & Scholars House (220 W 12th Ave) | Explore Undergrad Research, Fellowships & Service Learning!'
+    },
+    {
+      id: 'evt-sports-society-welcome',
+      title: '🍕 Sports & Society Welcome Event (Free Pizza + Press Box Giveaway)',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-24',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 1:00 PM - 2:30 PM | Location: 106 Journalism Bldg | Free Pizza! Chance to win Press Box seats for OSU vs Ball State game Sept 5.'
+    },
+    {
+      id: 'evt-aavgc-cookout',
+      title: '🍔 AAVGC The Cookout @ St. Stephen\'s',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-26',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 6:00 PM - 8:00 PM | Location: St. Stephen\'s Episcopal Church (30 W Woodruff Ave) | Music, drinks, food, games & prayer!'
+    },
+    {
+      id: 'evt-engin-serve-info',
+      title: '🛠️ EnginSERVE Info Night @ Ohio Union',
+      priority: 'high',
+      category: 'Career',
+      dueDate: '2026-08-26',
+      sourceTag: 'Engineering Events',
+      status: 'todo',
+      notes: '⏰ 8:00 PM - 9:00 PM | Location: Ohio Union (Barbie Tootle Room) | STEM outreach, service projects, networking & free snacks!'
+    },
+    {
+      id: 'evt-bsa-cookout',
+      title: '🏈 BSA Cookout @ Tuttle Park',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-30',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 4:00 PM | Location: Tuttle Park | Black Student Association Cookout! Food, music, line dancing & vibes.'
+    },
+    {
+      id: 'evt-grad-cafe',
+      title: '☕ Grad Café @ Ohio Union (Free Coffee & Snacks)',
+      priority: 'medium',
+      category: 'Personal',
+      dueDate: '2026-09-02',
+      sourceTag: 'Campus Events',
+      status: 'todo',
+      notes: '⏰ 9:00 AM - 12:00 PM | Location: Ohio Union (Creative Arts Room) | Free coffee, tea & café snacks. Quiet study & work space.'
     }
   ],
   projects: [

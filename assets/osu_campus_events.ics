@@ -65,6 +65,33 @@ STATUS:CONFIRMED
 END:VEVENT
 
 BEGIN:VEVENT
+SUMMARY:🍕 Sports & Society Welcome Event (Free Pizza + Press Box Giveaway)
+DTSTART:20260824T130000
+DTEND:20260824T143000
+LOCATION:106 Journalism Bldg
+DESCRIPTION:1:00 PM - 2:30 PM | Location: 106 Journalism Bldg | Free Pizza! Chance to win Press Box seats for OSU vs Ball State game Sept 5.
+STATUS:CONFIRMED
+END:VEVENT
+
+BEGIN:VEVENT
+SUMMARY:🍔 AAVGC The Cookout @ St. Stephen's
+DTSTART:20260826T180000
+DTEND:20260826T200000
+LOCATION:St. Stephen's Episcopal Church (30 W Woodruff Ave)
+DESCRIPTION:6:00 PM - 8:00 PM | Location: St. Stephen's Episcopal Church | Music, drinks, food, games & prayer!
+STATUS:CONFIRMED
+END:VEVENT
+
+BEGIN:VEVENT
+SUMMARY:🛠️ EnginSERVE Info Night @ Ohio Union
+DTSTART:20260826T200000
+DTEND:20260826T210000
+LOCATION:Ohio Union (Barbie Tootle Room)
+DESCRIPTION:8:00 PM - 9:00 PM | Location: Ohio Union (Barbie Tootle Room) | STEM outreach, service projects, networking & free snacks!
+STATUS:CONFIRMED
+END:VEVENT
+
+BEGIN:VEVENT
 SUMMARY:🍦 All Scholars Ice Cream Social @ Kuhn House
 DTSTART:20260828T150000
 DTEND:20260828T180000
@@ -112,6 +139,24 @@ DTSTART:20260829T180000
 DTEND:20260829T200000
 LOCATION:D9 Plaza
 DESCRIPTION:6:00 PM - 8:00 PM | Location: D9 Plaza | Free
+STATUS:CONFIRMED
+END:VEVENT
+
+BEGIN:VEVENT
+SUMMARY:🏈 BSA Cookout @ Tuttle Park
+DTSTART:20260830T160000
+DTEND:20260830T190000
+LOCATION:Tuttle Park
+DESCRIPTION:4:00 PM | Location: Tuttle Park | Black Student Association Cookout! Food, music, line dancing & vibes.
+STATUS:CONFIRMED
+END:VEVENT
+
+BEGIN:VEVENT
+SUMMARY:☕ Grad Café @ Ohio Union (Free Coffee & Snacks)
+DTSTART:20260902T090000
+DTEND:20260902T120000
+LOCATION:Ohio Union (Creative Arts Room)
+DESCRIPTION:9:00 AM - 12:00 PM | Location: Ohio Union (Creative Arts Room) | Free coffee, tea & café snacks. Quiet study & work space.
 STATUS:CONFIRMED
 END:VEVENT
 
