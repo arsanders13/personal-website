@@ -250,6 +250,56 @@ export const SEED_DATA = {
       sourceTag: 'Campus Events',
       status: 'todo',
       notes: '⏰ 9:00 AM - 12:00 PM | Location: Ohio Union (Creative Arts Room) | Free coffee, tea & café snacks. Quiet study & work space.'
+    },
+    {
+      id: 'evt-swe-slides-due',
+      title: '🛠️ SWE Interest Form & Bio Slides Due',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-28',
+      sourceTag: 'Engineering Events',
+      status: 'todo',
+      notes: '⏰ Due 11:59 PM | Society of Women Engineers Big-Little Interest Form and Bio Slides deadline.'
+    },
+    {
+      id: 'evt-swe-packets-sent',
+      title: '📦 SWE Bio Slide Packets Sent Out',
+      priority: 'medium',
+      category: 'Clubs',
+      dueDate: '2026-08-29',
+      sourceTag: 'Engineering Events',
+      status: 'todo',
+      notes: 'SWE Big-Little Bio Slide Packets distributed to participants.'
+    },
+    {
+      id: 'evt-swe-meet-greet',
+      title: '🤝 SWE Big-Little Meet & Greet @ Curl Viewpoint',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-08-30',
+      sourceTag: 'Engineering Events',
+      status: 'todo',
+      notes: '⏰ 6:00 PM - 8:00 PM | Location: Curl Viewpoint | Rotate tables & share favorite music to find your Big/Little match! Preference form sent right after.'
+    },
+    {
+      id: 'evt-swe-pref-due',
+      title: '📋 SWE Big-Little Preference Form Due',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-09-02',
+      sourceTag: 'Engineering Events',
+      status: 'todo',
+      notes: '⏰ Due 11:59 PM | Society of Women Engineers Big-Little Preference Form deadline.'
+    },
+    {
+      id: 'evt-swe-reveal',
+      title: '🎉 SWE Big-Little Reveal @ Curl Viewpoint',
+      priority: 'high',
+      category: 'Clubs',
+      dueDate: '2026-09-11',
+      sourceTag: 'Engineering Events',
+      status: 'todo',
+      notes: '⏰ 6:00 PM - 7:30 PM | Location: Curl Viewpoint | Society of Women Engineers Big-Little Match Reveal Event!'
     }
   ],
   projects: [
