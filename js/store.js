@@ -104,11 +104,13 @@ class Store {
     if (!parsed.projects || parsed.projects.length === 0) {
       parsed.projects = JSON.parse(JSON.stringify(SEED_DATA.projects));
     }
+    parsed.deletedTaskIds = Array.isArray(parsed.deletedTaskIds) ? parsed.deletedTaskIds : [];
+    const deletedIds = parsed.deletedTaskIds;
     if (!parsed.tasks || !Array.isArray(parsed.tasks)) {
-      parsed.tasks = JSON.parse(JSON.stringify(SEED_DATA.tasks));
+      parsed.tasks = JSON.parse(JSON.stringify(SEED_DATA.tasks)).filter(t => !deletedIds.includes(t.id));
     } else {
       SEED_DATA.tasks.forEach(seedTask => {
-        if (!parsed.tasks.some(t => t.id === seedTask.id || t.title === seedTask.title)) {
+        if (!deletedIds.includes(seedTask.id) && !parsed.tasks.some(t => t.id === seedTask.id || t.title === seedTask.title)) {
           parsed.tasks.unshift(seedTask);
         }
       });
@@ -150,9 +152,12 @@ class Store {
         // Filter out legacy sample demo sync tasks so unlinked feeds show 0 items by default
         parsed.tasks = parsed.tasks.filter(t => !t.id.startsWith('task-sync-') && !t.id.startsWith('task-import-'));
 
-        // Merge newly added campus events into active tasks if not present
+        parsed.deletedTaskIds = Array.isArray(parsed.deletedTaskIds) ? parsed.deletedTaskIds : [];
+        const deletedIds = parsed.deletedTaskIds;
+        
+        // Merge newly added campus events into active tasks if not present and not deleted by user
         SEED_DATA.tasks.forEach(seedTask => {
-          if (!parsed.tasks.some(t => t.id === seedTask.id || t.title === seedTask.title)) {
+          if (!deletedIds.includes(seedTask.id) && !parsed.tasks.some(t => t.id === seedTask.id || t.title === seedTask.title)) {
             parsed.tasks.push(seedTask);
           }
         });
@@ -433,8 +438,13 @@ class Store {
   }
 
   deleteTask(id) {
+    if (!this.data.deletedTaskIds) this.data.deletedTaskIds = [];
+    if (!this.data.deletedTaskIds.includes(id)) {
+      this.data.deletedTaskIds.push(id);
+    }
     this.data.tasks = this.data.tasks.filter(t => t.id !== id);
     this.saveData();
+    this.notify();
   }
 
   toggleTaskStatus(id) {

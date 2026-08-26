@@ -33,16 +33,18 @@ export function renderTasks(container) {
         return str.includes('party') || str.includes('pregame') || str.includes('adult swim') || str.includes('juiced up') || str.includes('wbw') || str.includes('in too deep') || str.includes('summer never ends') || str.includes('welcome backk') || str.includes('blue ice');
       }
 
-      // Quick Filter Tabs Logic
-      if (activeQuickFilter === 'today') {
+      // Quick Filter Tabs Logic (By default, only active events from TODAY onwards are shown!)
+      if (activeQuickFilter === 'all') {
+        filteredTasks = filteredTasks.filter(t => t.status !== 'done' && (!t.dueDate || t.dueDate >= todayStr));
+      } else if (activeQuickFilter === 'today') {
         filteredTasks = filteredTasks.filter(t => t.dueDate === todayStr && t.status !== 'done');
       } else if (activeQuickFilter === 'upcoming') {
         filteredTasks = filteredTasks.filter(t => t.dueDate && t.dueDate > todayStr && t.status !== 'done');
       } else if (activeQuickFilter === 'parties') {
-        filteredTasks = filteredTasks.filter(t => isPartyEvent(t) && t.status !== 'done');
+        filteredTasks = filteredTasks.filter(t => isPartyEvent(t) && t.status !== 'done' && (!t.dueDate || t.dueDate >= todayStr));
       } else if (activeQuickFilter === 'clubs') {
-        filteredTasks = filteredTasks.filter(t => !isPartyEvent(t) && (t.sourceTag === 'Campus Events' || t.sourceTag === 'Engineering Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs') && t.status !== 'done');
-      } else if (activeQuickFilter === 'overdue') {
+        filteredTasks = filteredTasks.filter(t => !isPartyEvent(t) && (t.sourceTag === 'Campus Events' || t.sourceTag === 'Engineering Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs') && t.status !== 'done' && (!t.dueDate || t.dueDate >= todayStr));
+      } else if (activeQuickFilter === 'past') {
         filteredTasks = filteredTasks.filter(t => t.dueDate && t.dueDate < todayStr && t.status !== 'done');
       } else if (activeQuickFilter === 'high') {
         filteredTasks = filteredTasks.filter(t => (t.priority === 'high' || t.priority === 'urgent') && t.status !== 'done');
@@ -130,6 +132,12 @@ export function renderTasks(container) {
             <!-- Quick Filter Tabs -->
             <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none">
               <button data-filter-tab="all" class="btn ${activeQuickFilter === 'all' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs">All Sectioned (In Order)</button>
+              <button data-filter-tab="past" class="btn ${activeQuickFilter === 'past' ? 'btn-primary text-text-subtle' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
+                <span>📜 Past Events</span>
+                ${(data.tasks || []).filter(t => t.dueDate && t.dueDate < todayStr && t.status !== 'done').length > 0 ? `
+                  <span class="badge bg-white/10 text-text-subtle text-[10px] font-bold">${(data.tasks || []).filter(t => t.dueDate && t.dueDate < todayStr && t.status !== 'done').length}</span>
+                ` : ''}
+              </button>
               <button data-filter-tab="parties" class="btn ${activeQuickFilter === 'parties' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
                 <span>🎉 Parties & Socials</span>
                 <span class="badge bg-purple-500/20 text-purple-300 text-[10px] font-bold">${partyCount}</span>

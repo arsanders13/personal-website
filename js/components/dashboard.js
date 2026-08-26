@@ -11,7 +11,7 @@ export function renderDashboard(container) {
 
   const todayStr = new Date().toISOString().split('T')[0];
   const upcomingEventsList = tasks
-    .filter(t => t.status !== 'done')
+    .filter(t => t.status !== 'done' && (!t.dueDate || t.dueDate >= todayStr))
     .sort((a, b) => {
       if (!a.dueDate) return 1;
       if (!b.dueDate) return -1;
