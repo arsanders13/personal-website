@@ -273,7 +273,6 @@ export function renderTasks(container) {
           ` : ''}
         </div>
       `;
-    }     `;
     }
 
     function renderTaskItem(t) {
