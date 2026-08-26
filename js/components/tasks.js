@@ -27,13 +27,21 @@ export function renderTasks(container) {
         return a.dueDate.localeCompare(b.dueDate);
       });
 
+      function isPartyEvent(t) {
+        if (!t || !t.title) return false;
+        const str = (t.title + ' ' + (t.notes || '') + ' ' + (t.category || '')).toLowerCase();
+        return str.includes('party') || str.includes('pregame') || str.includes('adult swim') || str.includes('juiced up') || str.includes('wbw') || str.includes('in too deep') || str.includes('summer never ends') || str.includes('welcome backk') || str.includes('blue ice');
+      }
+
       // Quick Filter Tabs Logic
       if (activeQuickFilter === 'today') {
         filteredTasks = filteredTasks.filter(t => t.dueDate === todayStr && t.status !== 'done');
       } else if (activeQuickFilter === 'upcoming') {
         filteredTasks = filteredTasks.filter(t => t.dueDate && t.dueDate > todayStr && t.status !== 'done');
-      } else if (activeQuickFilter === 'events') {
-        filteredTasks = filteredTasks.filter(t => t.sourceTag === 'Campus Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs');
+      } else if (activeQuickFilter === 'parties') {
+        filteredTasks = filteredTasks.filter(t => isPartyEvent(t) && t.status !== 'done');
+      } else if (activeQuickFilter === 'clubs') {
+        filteredTasks = filteredTasks.filter(t => !isPartyEvent(t) && (t.sourceTag === 'Campus Events' || t.sourceTag === 'Engineering Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs') && t.status !== 'done');
       } else if (activeQuickFilter === 'overdue') {
         filteredTasks = filteredTasks.filter(t => t.dueDate && t.dueDate < todayStr && t.status !== 'done');
       } else if (activeQuickFilter === 'high') {
@@ -64,6 +72,10 @@ export function renderTasks(container) {
       const goals = data.goals || [];
       const quickCaptureItems = data.quickCapture || [];
 
+      const allTasksList = data.tasks || [];
+      const partyCount = allTasksList.filter(t => isPartyEvent(t) && t.status !== 'done').length;
+      const clubCount = allTasksList.filter(t => !isPartyEvent(t) && (t.sourceTag === 'Campus Events' || t.sourceTag === 'Engineering Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs') && t.status !== 'done').length;
+
       container.innerHTML = `
         <div class="space-y-6 animate-fade-in pb-12">
           
@@ -71,14 +83,14 @@ export function renderTasks(container) {
           <div class="flex flex-col sm:flex-row sm:items-center justify-between glass-card p-6 gap-4 bg-gradient-to-r from-amber-500/10 via-bg-card to-indigo-950/20 border-amber-500/20">
             <div class="space-y-1">
               <h2 class="text-xl font-extrabold text-text flex items-center gap-2">
-                <span>Tasks & Campus Events Schedule</span>
+                <span>Tasks, Parties & Campus Events</span>
                 <span class="badge bg-amber-500/20 text-amber-700 dark:text-amber-300 font-mono text-xs">${filteredTasks.length} items</span>
               </h2>
-              <p class="text-xs text-text-subtle">Chronologically ordered campus events, parties, meetups, and action items.</p>
+              <p class="text-xs text-text-subtle">Sectioned into Parties & Social Nights vs. Campus Club & Academic Events (In Order).</p>
             </div>
 
             <div class="flex items-center gap-2">
-              <a href="assets/osu_campus_events.ics" download="osu_campus_events.ics" class="btn btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10" title="Export all 14 campus events to Apple Calendar / Google Calendar">
+              <a href="assets/osu_campus_events.ics" download="osu_campus_events.ics" class="btn btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10" title="Export all 19 campus events to Apple Calendar / Google Calendar">
                 <i data-lucide="calendar-plus" class="w-3.5 h-3.5 text-amber-500"></i>
                 <span>📅 Export All to Apple / Google Cal</span>
               </a>
@@ -112,49 +124,25 @@ export function renderTasks(container) {
             </div>
           ` : ''}
 
-          <!-- Pomodoro Bar (if active) -->
-          ${focusTask ? `
-            <div class="glass-card p-4 bg-emerald-950/20 border-emerald-500/40 flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold animate-pulse">
-                  <i data-lucide="timer" class="w-4 h-4"></i>
-                </div>
-                <div>
-                  <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Active Focus Session</div>
-                  <div class="text-xs font-bold text-text">${focusTask.title}</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="text-xl font-black font-mono text-emerald-400">
-                  ${Math.floor(focusSeconds / 60).toString().padStart(2, '0')}:${(focusSeconds % 60).toString().padStart(2, '0')}
-                </div>
-                <button id="stop-focus-btn" class="btn btn-ghost text-xs text-danger px-2 py-1">Stop</button>
-              </div>
-            </div>
-          ` : ''}
-
           <!-- View Switcher & Smart Filter Bar -->
           <div class="space-y-4">
             
             <!-- Quick Filter Tabs -->
             <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none">
-              <button data-filter-tab="all" class="btn ${activeQuickFilter === 'all' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs">All Items (In Order)</button>
-              <button data-filter-tab="events" class="btn ${activeQuickFilter === 'events' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
-                <span>🎉 Campus Events</span>
-                <span class="badge bg-amber-500/20 text-amber-300 text-[10px] font-bold">${(data.tasks || []).filter(t => t.sourceTag === 'Campus Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs').length}</span>
+              <button data-filter-tab="all" class="btn ${activeQuickFilter === 'all' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs">All Sectioned (In Order)</button>
+              <button data-filter-tab="parties" class="btn ${activeQuickFilter === 'parties' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
+                <span>🎉 Parties & Socials</span>
+                <span class="badge bg-purple-500/20 text-purple-300 text-[10px] font-bold">${partyCount}</span>
+              </button>
+              <button data-filter-tab="clubs" class="btn ${activeQuickFilter === 'clubs' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
+                <span>🏫 Club & Campus Events</span>
+                <span class="badge bg-cyan-500/20 text-cyan-300 text-[10px] font-bold">${clubCount}</span>
               </button>
               <button data-filter-tab="today" class="btn ${activeQuickFilter === 'today' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
                 <span>Today</span>
                 <span class="badge bg-white/20 text-[10px]">${(data.tasks || []).filter(t => t.dueDate === todayStr && t.status !== 'done').length}</span>
               </button>
               <button data-filter-tab="upcoming" class="btn ${activeQuickFilter === 'upcoming' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs">Upcoming</button>
-              <button data-filter-tab="overdue" class="btn ${activeQuickFilter === 'overdue' ? 'btn-primary text-danger' : 'btn-ghost'} py-1.5 px-3 text-xs flex items-center gap-1">
-                <span>Overdue</span>
-                ${(data.tasks || []).filter(t => t.dueDate && t.dueDate < todayStr && t.status !== 'done').length > 0 ? `
-                  <span class="badge bg-danger/20 text-danger text-[10px] font-bold">${(data.tasks || []).filter(t => t.dueDate && t.dueDate < todayStr && t.status !== 'done').length}</span>
-                ` : ''}
-              </button>
-              <button data-filter-tab="high" class="btn ${activeQuickFilter === 'high' ? 'btn-primary' : 'btn-ghost'} py-1.5 px-3 text-xs">High Priority</button>
             </div>
 
             <!-- Controls Header & View Switcher -->
@@ -176,7 +164,7 @@ export function renderTasks(container) {
                 <input 
                   id="tasks-search-input" 
                   type="text" 
-                  placeholder="Search tasks..." 
+                  placeholder="Search events & tasks..." 
                   value="${searchQuery}"
                   class="input-field text-xs py-1 px-3 w-36 sm:w-44"
                 />
@@ -207,25 +195,69 @@ export function renderTasks(container) {
       const todoTasks = tasks.filter(t => t.status !== 'done');
       const doneTasks = tasks.filter(t => t.status === 'done');
 
+      function isParty(t) {
+        if (!t || !t.title) return false;
+        const str = (t.title + ' ' + (t.notes || '') + ' ' + (t.category || '')).toLowerCase();
+        return str.includes('party') || str.includes('pregame') || str.includes('adult swim') || str.includes('juiced up') || str.includes('wbw') || str.includes('in too deep') || str.includes('summer never ends') || str.includes('welcome backk') || str.includes('blue ice');
+      }
+
+      const partyTasks = todoTasks.filter(t => isParty(t));
+      const clubTasks = todoTasks.filter(t => !isParty(t) && (t.sourceTag === 'Campus Events' || t.sourceTag === 'Engineering Events' || t.sourceTag === 'OSU Honors' || t.category === 'Clubs'));
+      const personalTasks = todoTasks.filter(t => !isParty(t) && !clubTasks.includes(t));
+
       return `
         <div class="space-y-6">
-          <div class="glass-card p-6 space-y-4">
-            <div class="flex items-center justify-between pb-2 border-b border-border">
-              <h3 class="text-base font-bold text-text flex items-center gap-2">
-                <span>Action Items & To-Dos</span>
-                <span class="badge text-xs bg-amber-500/20 text-amber-400 font-bold">${todoTasks.length}</span>
-              </h3>
-            </div>
-
-            ${todoTasks.length === 0 ? `
-              <div class="py-10 text-center text-text-subtle text-xs">No tasks match selected filter. Click "+ New Task" to add an item!</div>
-            ` : `
-              <div class="space-y-3">
-                ${todoTasks.map(t => renderTaskItem(t)).join('')}
+          
+          <!-- Section 1: 🎉 Parties & Social Nights -->
+          ${(activeQuickFilter === 'all' || activeQuickFilter === 'parties') && partyTasks.length > 0 ? `
+            <div class="glass-card p-6 space-y-4 border-purple-500/30 bg-purple-500/5">
+              <div class="flex items-center justify-between pb-2 border-b border-purple-500/20">
+                <h3 class="text-base font-bold text-text flex items-center gap-2">
+                  <span>🎉 Parties, Pregames & Social Nights (In Order)</span>
+                  <span class="badge text-xs bg-purple-500/20 text-purple-300 font-bold">${partyTasks.length}</span>
+                </h3>
               </div>
-            `}
-          </div>
+              <div class="space-y-3">
+                ${partyTasks.map(t => renderTaskItem(t)).join('')}
+              </div>
+            </div>
+          ` : ''}
 
+          <!-- Section 2: 🏫 Campus Club & Academic Events -->
+          ${(activeQuickFilter === 'all' || activeQuickFilter === 'clubs') && clubTasks.length > 0 ? `
+            <div class="glass-card p-6 space-y-4 border-cyan-500/30 bg-cyan-500/5">
+              <div class="flex items-center justify-between pb-2 border-b border-cyan-500/20">
+                <h3 class="text-base font-bold text-text flex items-center gap-2">
+                  <span>🏫 Campus Club, Mixer & Academic Events (In Order)</span>
+                  <span class="badge text-xs bg-cyan-500/20 text-cyan-300 font-bold">${clubTasks.length}</span>
+                </h3>
+              </div>
+              <div class="space-y-3">
+                ${clubTasks.map(t => renderTaskItem(t)).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Section 3: 📌 Action Items & Personal Tasks -->
+          ${personalTasks.length > 0 ? `
+            <div class="glass-card p-6 space-y-4">
+              <div class="flex items-center justify-between pb-2 border-b border-border">
+                <h3 class="text-base font-bold text-text flex items-center gap-2">
+                  <span>📌 Personal Action Items & To-Dos</span>
+                  <span class="badge text-xs bg-amber-500/20 text-amber-400 font-bold">${personalTasks.length}</span>
+                </h3>
+              </div>
+              <div class="space-y-3">
+                ${personalTasks.map(t => renderTaskItem(t)).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          ${todoTasks.length === 0 ? `
+            <div class="glass-card p-8 text-center text-text-subtle text-xs">No items match the selected filter. Click "+ New Event / Task" to add one!</div>
+          ` : ''}
+
+          <!-- Section 4: Completed Archive -->
           ${doneTasks.length > 0 ? `
             <div class="glass-card p-6 space-y-4 opacity-75">
               <div class="flex items-center justify-between pb-2 border-b border-border">
@@ -241,6 +273,7 @@ export function renderTasks(container) {
           ` : ''}
         </div>
       `;
+    }     `;
     }
 
     function renderTaskItem(t) {
